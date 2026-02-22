@@ -1,13 +1,14 @@
 {
-  "homepage": "https://povdaroee-collab.github.io/sellerorder",
   "name": "e-commerve_payment",
   "version": "1.0.0",
   "description": "",
   "main": "app.js",
+  "homepage": "https://povdaroee-collab.github.io/sellerorder",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node app.js",
-    "deploy": "gh-pages -d ."
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "predeploy": "git add . && git commit -m \"Update before deploy\" || true",
+    "deploy": "gh-pages -r https://github.com/povdaroee-collab/sellerorder.git -d ."
   },
   "keywords": [],
   "author": "",
