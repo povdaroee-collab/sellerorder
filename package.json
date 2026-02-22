@@ -8,7 +8,7 @@
     "start": "node app.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "predeploy": "git add . && git commit -m \"Update before deploy\" || true",
-    "deploy": "gh-pages -r https://github.com/povdaroee-collab/sellerorder.git -d ."
+    "deploy": "gh-pages --repo https://github.com/povdaroee-collab/sellerorder.git -d ."
   },
   "keywords": [],
   "author": "",
