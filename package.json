@@ -7,8 +7,8 @@
   "scripts": {
     "start": "node server/app.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "predeploy": "git add . && git commit -m \"Update structure and ready for deploy\" || true",
-    "deploy": "gh-pages -d client"    
+    "predeploy": "git add . && git commit -m \"Update structure to client and server\" || true",
+  "deploy": "gh-pages -d client"   
   },
   "keywords": [],
   "author": "",
