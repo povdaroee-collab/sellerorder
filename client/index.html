@@ -434,9 +434,21 @@
                 <div class="absolute top-0 left-0 w-full h-1.5 bg-slate-100">
                     <div class="h-full bg-gradient-to-r from-blue-500 via-teal-400 to-blue-500 transition-all duration-1000 ease-linear" :style="{ width: (qrTimeLeft / 300 * 100) + '%' }"></div>
                 </div>
+                
                 <div class="flex items-center justify-center w-16 h-16 bg-blue-50 text-blue-600 rounded-full mx-auto mb-4 shadow-inner"><i class="ph-fill ph-qr-code text-3xl"></i></div>
                 <h3 class="text-2xl font-black text-slate-900 font-['Noto_Serif_Khmer']">ស្កេនដើម្បីទូទាត់ប្រាក់</h3>
-                <div class="bg-white p-4 rounded-[1.5rem] border-2 border-slate-100 shadow-sm inline-block mb-4 mt-4"><div id="qrcode"></div></div>
+                
+                <div class="mt-3 text-sm">
+                    <p class="font-bold text-slate-800 uppercase">{{ currentMerchantName }}</p>
+                    <p class="text-[10px] text-slate-400 font-bold tracking-widest mt-0.5">ID: {{ currentMerchantId }}</p>
+                </div>
+
+                <div class="bg-white p-4 rounded-[1.5rem] border-2 border-slate-100 shadow-sm inline-block mb-3 mt-4"><div id="qrcode"></div></div>
+                
+                <div class="mb-3 text-sm font-bold font-['Noto_Serif_Khmer']" :class="qrTimeLeft < 60 ? 'text-red-500 animate-pulse' : 'text-slate-500'">
+                    ផុតកំណត់ក្នុង: {{ formatTime(qrTimeLeft) }}
+                </div>
+
                 <div class="text-4xl font-black text-slate-900 mb-5">${{ currentOrderTotal.toLocaleString('en-US', {minimumFractionDigits: 2}) }}</div>
                 <button @click="cancelPayment" class="w-full py-3.5 rounded-xl text-red-500 font-bold bg-red-50 hover:bg-red-100 transition-colors font-['Noto_Serif_Khmer']">បោះបង់ការទូទាត់</button>
             </div>
@@ -559,8 +571,8 @@
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
         import { getFirestore, collection, getDocs, query, where, doc, updateDoc, increment, addDoc, orderBy } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
 
-        //const API_URL = "http://localhost:3000";
-        const API_URL = "https://possystem-lbw0.onrender.com";
+         const API_URL = "http://localhost:3000";
+        //const API_URL = "https://possystem-lbw0.onrender.com"; // ដូរទៅ Server របស់ Render វិញប្រសិនបើ Test Local ដើរហើយ
 
         createApp({
             setup() {
@@ -573,6 +585,11 @@
                 const loggedInUserFullName = ref('');
                 const userPhotoUrl = ref('');
                 const adminName = ref(''); 
+                
+                // ⭐️ អថេរថ្មីសម្រាប់ផ្ទុក ID (uid និង createdBy របស់ Seller)
+                const loggedInUserId = ref(''); 
+                const adminId = ref(''); 
+                
                 const loginForm = reactive({ username: '', password: '' });
 
                 const socket = io(API_URL, { transports: ["polling", "websocket"] });
@@ -604,6 +621,10 @@
                 const pendingCashNote = ref('');
                 
                 const qrTimeLeft = ref(300);
+                
+                const currentMerchantId = ref('');
+                const currentMerchantName = ref('');
+
                 let timerInterval = null, pollTimer = null;
                 const currentHash = ref('');
                 const currentOrderTotal = ref(0);
@@ -623,7 +644,11 @@
                         loggedInUserFullName.value = session.fullName;
                         userRole.value = session.role;
                         userPhotoUrl.value = session.photoUrl;
-                        adminName.value = session.adminName;
+                        adminName.value = session.adminName || 'Admin';
+                        
+                        // ⭐️ ទាញយក uid និង createdBy ពី Session ពេល Refresh
+                        loggedInUserId.value = session.uid || '';
+                        adminId.value = session.createdBy || '';
                     }
                     isCheckingSession.value = false;
 
@@ -692,16 +717,26 @@
                         const querySnapshot = await getDocs(q);
 
                         if (!querySnapshot.empty) {
-                            const userData = querySnapshot.docs[0].data();
+                            const userDoc = querySnapshot.docs[0];
+                            const userData = userDoc.data();
                             isLoggedIn.value = true;
+                            
                             userRole.value = userData.role || 'seller'; 
                             loggedInUserFullName.value = userData.fullName || userData.username;
                             userPhotoUrl.value = userData.photoUrl || '';
-                            adminName.value = userData.adminName || 'Pov Daro'; 
+                            adminName.value = userData.adminName || 'Admin'; 
+                            
+                            // ⭐️ ចាប់យកតម្លៃ `uid` និង `createdBy` ពី Database
+                            loggedInUserId.value = userData.uid || userDoc.id; 
+                            adminId.value = userData.createdBy || '';
                             
                             localStorage.setItem('dpos_session', JSON.stringify({
-                                fullName: loggedInUserFullName.value, role: userRole.value,
-                                photoUrl: userPhotoUrl.value, adminName: adminName.value
+                                fullName: loggedInUserFullName.value, 
+                                role: userRole.value,
+                                photoUrl: userPhotoUrl.value, 
+                                adminName: adminName.value,
+                                uid: loggedInUserId.value, // ⭐️ រក្សាទុកក្នុង Session
+                                createdBy: adminId.value   // ⭐️ រក្សាទុកក្នុង Session
                             }));
                             
                             notify("ជោគជ័យ", `សូមស្វាគមន៍ ${loggedInUserFullName.value.toUpperCase()}`);
@@ -753,6 +788,11 @@
                             mapsLink: form.mapsLink,
                             sellerName: loggedInUserFullName.value,
                             sellerRole: userRole.value,
+                            
+                            // ⭐️ បញ្ចូល uid និង createdBy ពេលរក្សាទុករង់ចាំបង់ប្រាក់
+                            uid: loggedInUserId.value,       
+                            createdBy: adminId.value,        
+                            
                             paymentStatus: 'PENDING',
                             paymentMethod: 'COD',
                             createdAt: new Date().toISOString()
@@ -784,7 +824,13 @@
                         const payload = {
                             customer: { name: form.name, phone: form.phone, address: `${form.province} - ${form.transportCompany} (${form.branch})` }, 
                             cart: cart.value,
-                            seller: { name: loggedInUserFullName.value, role: userRole.value, adminName: adminName.value }
+                            seller: { 
+                                name: loggedInUserFullName.value, 
+                                role: userRole.value, 
+                                adminName: adminName.value,
+                                uid: loggedInUserId.value,
+                                createdBy: adminId.value
+                            }
                         };
                         const res = await fetch(`${API_URL}/api/create-order`, {
                             method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload)
@@ -793,6 +839,10 @@
                         if(data.qrString) {
                             showCheckout.value = false; showQR.value = true;
                             currentHash.value = data.md5;
+                            
+                            currentMerchantId.value = data.merchantId;
+                            currentMerchantName.value = data.merchantName;
+                            
                             startCountdown(data.expireAt);
                             setTimeout(() => {
                                 const qr = qrcode(0, "M"); qr.addData(data.qrString); qr.make();
@@ -817,6 +867,11 @@
                                 transportCompany: form.city !== 'ភ្នំពេញ' ? form.transportCompany : '',
                                 branch: form.city !== 'ភ្នំពេញ' ? form.branch : '',
                                 sellerName: loggedInUserFullName.value, sellerRole: userRole.value,
+                                
+                                // ⭐️ បញ្ចូល uid និង createdBy ពេលទូទាត់លុយតាម KHQR
+                                uid: loggedInUserId.value,       
+                                createdBy: adminId.value,        
+                                
                                 paymentStatus: 'PAID', paymentMethod: 'KHQR',
                                 createdAt: new Date().toISOString()
                             };
@@ -892,7 +947,13 @@
                             const payload = {
                                 customer: { name: pendingOrderToPay.value.customerName, phone: pendingOrderToPay.value.customerPhone }, 
                                 cart: pendingOrderToPay.value.items,
-                                seller: { name: loggedInUserFullName.value, role: userRole.value, adminName: adminName.value }
+                                seller: { 
+                                    name: loggedInUserFullName.value, 
+                                    role: userRole.value, 
+                                    adminName: adminName.value,
+                                    uid: loggedInUserId.value,
+                                    createdBy: adminId.value
+                                }
                             };
                             const res = await fetch(`${API_URL}/api/create-order`, {
                                 method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload)
@@ -901,6 +962,10 @@
                             if(data.qrString) {
                                 showPendingPayModal.value = false; showQR.value = true;
                                 currentHash.value = data.md5;
+                                
+                                currentMerchantId.value = data.merchantId;
+                                currentMerchantName.value = data.merchantName;
+                                
                                 startCountdown(data.expireAt);
                                 setTimeout(() => {
                                     const qr = qrcode(0, "M"); qr.addData(data.qrString); qr.make();
@@ -957,13 +1022,16 @@
 
                 return {
                     currentView, isCheckingSession, isLoggedIn, userRole, loggedInUserFullName, userPhotoUrl, loginForm, 
+                    loggedInUserId, adminId, // ⭐️ Return data
                     handleLogin, showLogoutConfirm, executeLogout, 
                     products, isLoadingProducts, cart, form, showCart, showCheckout, showQR, loading, notifications, qrTimeLeft, currentOrderTotal,
                     reports, isLoadingReports, filterType, filteredReports, totalRevenue, pendingOrdersCount, formatDate,
                     cartTotalQty, cartTotal, addToCart, removeFromCart, updateQty, cancelPayment, formatTime,
                     startCheckout, processPendingOrder, processOrder, cancelPendingOrder, 
                     showPendingPayModal, pendingOrderToPay, pendingPayMethod, pendingCashAmount, pendingCashNote, openPayPendingModal, confirmPendingPayment,
-                    showInvoice, currentInvoice, closeInvoice, printInvoice, downloadInvoiceImage
+                    showInvoice, currentInvoice, closeInvoice, printInvoice, downloadInvoiceImage,
+                    
+                    currentMerchantId, currentMerchantName
                 };
             }
         }).mount('#app');
