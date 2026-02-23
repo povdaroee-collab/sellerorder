@@ -1,9 +1,25 @@
 <template>
   <div class="min-h-screen flex relative bg-[#F8FAFC]">
+      
+      <div v-if="showLogoutConfirm" class="fixed inset-0 z-[250] flex items-center justify-center p-4">
+          <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" @click="showLogoutConfirm = false"></div>
+          <div class="relative bg-white w-full max-w-sm rounded-[2rem] p-8 text-center shadow-2xl animate-pop">
+              <div class="w-20 h-20 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-5">
+                  <i class="ph-fill ph-sign-out text-4xl"></i>
+              </div>
+              <h3 class="text-2xl font-black text-slate-900 mb-2 font-['Noto_Serif_Khmer']">ចាកចេញពីប្រព័ន្ធ?</h3>
+              <p class="text-slate-500 text-sm mb-8 font-['Noto_Serif_Khmer']">តើអ្នកពិតជាចង់ចាកចេញពីគណនីនេះមែនទេ?</p>
+              <div class="flex gap-3">
+                  <button @click="showLogoutConfirm = false" class="flex-1 py-3.5 rounded-xl font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition">បោះបង់</button>
+                  <button @click="executeLogout" class="flex-1 py-3.5 rounded-xl font-bold text-white bg-red-500 hover:bg-red-600 shadow-lg shadow-red-500/30 transition">ចាកចេញ</button>
+              </div>
+          </div>
+      </div>
+
       <aside class="hidden md:flex flex-col smart-sidebar w-[5.5rem] h-screen bg-slate-900 border-r border-slate-800 fixed left-0 top-0 z-50 py-6 text-slate-400 group shadow-2xl">
           <div class="flex items-center px-6 mb-10 h-10">
-              <div class="w-10 h-10 bg-gradient-to-tr from-blue-600 to-teal-400 rounded-xl flex shrink-0 items-center justify-center text-white text-xl font-black shadow-lg">D</div>
-              <span class="ml-4 font-black text-xl text-white menu-text tracking-tight">D-pos<span class="text-blue-500">.</span></span>
+              <div class="w-10 h-10 bg-gradient-to-tr from-blue-600 to-teal-400 rounded-xl flex shrink-0 items-center justify-center text-white text-xl font-black shadow-lg">S</div>
+              <span class="ml-4 font-black text-xl text-white menu-text tracking-tight">S-pos<span class="text-blue-500">.</span></span>
           </div>
 
           <nav class="flex-1 space-y-2 px-3 w-full">
@@ -15,6 +31,10 @@
                   <i class="ph-fill ph-chart-line-up text-2xl shrink-0"></i>
                   <span class="ml-4 font-bold menu-text text-sm font-['Noto_Serif_Khmer']">របាយការណ៍លក់</span>
               </button>
+              <button @click="currentView = 'account'" :class="currentView === 'account' ? 'bg-blue-600/10 text-blue-500' : 'hover:bg-slate-800 hover:text-white'" class="flex items-center w-full px-3 py-3.5 rounded-xl transition-all">
+                  <i class="ph-fill ph-user-circle text-2xl shrink-0"></i>
+                  <span class="ml-4 font-bold menu-text text-sm font-['Noto_Serif_Khmer']">គណនីរបស់ខ្ញុំ</span>
+              </button>
               <button @click="showCart = true" class="flex items-center w-full px-3 py-3.5 hover:bg-slate-800 hover:text-white rounded-xl transition-all relative">
                   <i class="ph-fill ph-shopping-cart text-2xl shrink-0"></i>
                   <span class="ml-4 font-bold menu-text text-sm flex-1 text-left">Cart</span>
@@ -23,7 +43,7 @@
           </nav>
 
           <div class="px-3 mt-auto">
-              <button @click="executeLogout" class="flex items-center w-full px-3 py-3.5 hover:bg-red-500/10 text-red-400 hover:text-red-500 rounded-xl transition-all">
+              <button @click="showLogoutConfirm = true" class="flex items-center w-full px-3 py-3.5 hover:bg-red-500/10 text-red-400 hover:text-red-500 rounded-xl transition-all">
                   <i class="ph-bold ph-sign-out text-2xl shrink-0"></i>
                   <span class="ml-4 font-bold menu-text text-sm">Log Out</span>
               </button>
@@ -44,10 +64,12 @@
       <main class="flex-1 min-h-screen md:ml-[5.5rem] pb-24 md:pb-12 bg-[#F8FAFC] transition-all duration-300">
           <header class="md:hidden flex items-center justify-between p-4 bg-white shadow-sm sticky top-0 z-40">
               <div class="flex items-center gap-2">
-                  <div class="w-8 h-8 bg-slate-900 rounded-lg flex items-center justify-center text-white font-bold">D</div>
-                  <h1 class="font-black text-lg text-slate-900 font-['Noto_Serif_Khmer']">{{ currentView === 'pos' ? 'D-pos-system' : 'របាយការណ៍លក់' }}</h1>
+                  <div class="w-8 h-8 bg-slate-900 rounded-lg flex items-center justify-center text-white font-bold">S</div>
+                  <h1 class="font-black text-lg text-slate-900 font-['Noto_Serif_Khmer']">
+                      {{ currentView === 'pos' ? 'S-pos-system' : (currentView === 'report' ? 'របាយការណ៍លក់' : 'គណនីរបស់ខ្ញុំ') }}
+                  </h1>
               </div>
-              <div class="w-8 h-8 rounded-full overflow-hidden border border-slate-200 bg-slate-100 flex items-center justify-center" @click="executeLogout">
+              <div class="w-8 h-8 rounded-full overflow-hidden border border-slate-200 bg-slate-100 flex items-center justify-center" @click="showLogoutConfirm = true">
                   <img v-if="userPhotoUrl" :src="userPhotoUrl" class="w-full h-full object-cover">
                   <i v-else class="ph-fill ph-user text-slate-400"></i>
               </div>
@@ -143,6 +165,7 @@
 
                   <div v-else class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-5 font-['Noto_Serif_Khmer']">
                       <div v-for="report in filteredReports" :key="report.id" class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md hover:border-blue-100 transition-all duration-200 flex flex-col relative group">
+                          
                           <div class="flex justify-between items-start border-b border-slate-100 pb-3 mb-3">
                               <div class="text-xs text-slate-500 font-medium flex items-center gap-1.5"><i class="ph-bold ph-calendar-blank"></i> {{ formatDate(report.createdAt) }}</div>
                               <span v-if="report.paymentStatus === 'PAID'" class="bg-green-50 text-green-600 border border-green-200 px-2.5 py-1 rounded-full text-[10px] font-bold flex items-center gap-1"><i class="ph-bold ph-check"></i> បានទូទាត់</span>
@@ -151,9 +174,15 @@
                           </div>
                           
                           <div class="space-y-2.5 text-sm flex-1">
-                              <div class="font-bold text-slate-900 text-base flex items-center gap-2">
-                                  <div class="w-6 h-6 rounded-md bg-slate-50 text-slate-400 flex items-center justify-center shrink-0"><i class="ph-fill ph-user"></i></div>
-                                  <span class="truncate">{{ report.customerName || 'មិនបញ្ជាក់' }}</span>
+                              <div class="font-bold text-slate-900 text-base flex items-center justify-between gap-2">
+                                  <div class="flex items-center gap-2 overflow-hidden">
+                                    <div class="w-6 h-6 rounded-md bg-slate-50 text-slate-400 flex items-center justify-center shrink-0"><i class="ph-fill ph-user"></i></div>
+                                    <span class="truncate">{{ report.customerName || 'មិនបញ្ជាក់' }}</span>
+                                  </div>
+                                  <div class="flex gap-1">
+                                      <button v-if="report.paymentStatus === 'PENDING'" @click="openEditModal(report)" class="w-7 h-7 flex items-center justify-center rounded bg-slate-50 text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition" title="កែប្រែព័ត៌មាន"><i class="ph-bold ph-pencil-simple"></i></button>
+                                      <button @click="viewInvoice(report)" class="w-7 h-7 flex items-center justify-center rounded bg-slate-50 text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition" title="មើលវិក្កយបត្រ"><i class="ph-bold ph-receipt"></i></button>
+                                  </div>
                               </div>
                               <div class="text-slate-600 flex items-center gap-2">
                                   <div class="w-6 h-6 rounded-md bg-slate-50 text-slate-400 flex items-center justify-center shrink-0"><i class="ph-fill ph-phone"></i></div>
@@ -161,7 +190,10 @@
                               </div>
                               <div class="text-blue-600 font-medium flex items-start gap-2">
                                   <div class="w-6 h-6 rounded-md bg-blue-50 text-blue-500 flex items-center justify-center shrink-0"><i class="ph-fill ph-map-pin"></i></div>
-                                  <span class="line-clamp-2 mt-0.5">{{ report.location || 'N/A' }}</span>
+                                  <div class="flex flex-col">
+                                      <span class="line-clamp-2 mt-0.5">{{ report.location || 'N/A' }}</span>
+                                      <span v-if="report.transportCompany" class="text-[10px] text-slate-400 mt-0.5">{{ report.transportCompany }} ({{ report.branch }})</span>
+                                  </div>
                               </div>
                           </div>
 
@@ -178,6 +210,10 @@
                       </div>
                   </div>
               </div>
+
+              <div v-else-if="currentView === 'account'" key="account" class="px-4 md:px-8 py-8 md:py-12">
+                  <MyAccount />
+              </div>
           </transition>
       </main>
 
@@ -189,15 +225,15 @@
               <button @click="currentView = 'report'" :class="currentView === 'report' ? 'text-blue-600 scale-110' : 'text-slate-400 hover:text-slate-600'" class="flex-1 flex flex-col items-center justify-center gap-1 transition-all">
                   <i class="text-2xl" :class="currentView === 'report' ? 'ph-fill ph-chart-line-up' : 'ph ph-chart-line-up'"></i><span class="text-[9px] font-bold font-['Noto_Serif_Khmer']">របាយការណ៍</span>
               </button>
+              <button @click="currentView = 'account'" :class="currentView === 'account' ? 'text-blue-600 scale-110' : 'text-slate-400 hover:text-slate-600'" class="flex-1 flex flex-col items-center justify-center gap-1 transition-all">
+                  <i class="text-2xl" :class="currentView === 'account' ? 'ph-fill ph-user-circle' : 'ph ph-user-circle'"></i><span class="text-[9px] font-bold font-['Noto_Serif_Khmer']">គណនី</span>
+              </button>
               <button @click="showCart = true" class="flex-1 relative flex flex-col items-center justify-center -mt-6">
                   <div class="w-14 h-14 bg-slate-900 text-white rounded-full flex items-center justify-center shadow-lg border-4 border-[#F8FAFC]">
                       <i class="ph-fill ph-shopping-bag text-2xl"></i>
                       <span v-if="cartTotalQty > 0" class="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full">{{ cartTotalQty }}</span>
                   </div>
                   <span class="text-[9px] font-bold text-slate-800 mt-1">Cart</span>
-              </button>
-              <button @click="executeLogout" class="flex-1 flex flex-col items-center justify-center gap-1 text-red-400">
-                  <i class="text-2xl ph-bold ph-sign-out"></i><span class="text-[9px] font-bold font-['Noto_Serif_Khmer']">ចាកចេញ</span>
               </button>
           </div>
       </nav>
@@ -210,7 +246,7 @@
                       <h2 class="text-xl font-bold flex items-center gap-2">កន្ត្រកទំនិញ <span class="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full">{{ cartTotalQty }}</span></h2>
                       <button @click="showCart = false" class="p-2 hover:bg-slate-100 rounded-full"><i class="ph-bold ph-x text-lg"></i></button>
                   </div>
-                  <div class="flex-1 overflow-y-auto p-4 space-y-4 font-['Noto_Serif_Khmer']">
+                  <div class="flex-1 overflow-y-auto p-4 space-y-4 font-['Noto_Serif_Khmer'] custom-scrollbar">
                       <div v-if="cart.length === 0" class="text-center pt-20 text-slate-400">កន្ត្រកទទេរ</div>
                       <div v-for="(item, index) in cart" :key="index" class="flex gap-4 p-3 bg-slate-50 rounded-2xl border border-slate-100">
                           <div class="w-16 h-16 rounded-xl overflow-hidden bg-white shrink-0"><img :src="item.image" class="w-full h-full object-cover"></div>
@@ -245,63 +281,118 @@
 
       <div v-if="showCheckout" class="fixed inset-0 z-[100] flex items-center justify-center p-4 no-print">
           <div @click="showCheckout = false" class="absolute inset-0 bg-slate-900/70 backdrop-blur-sm"></div>
-          <div class="relative z-10 bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden animate-pop font-['Noto_Serif_Khmer']">
-              <div class="p-6 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
-                  <h2 class="text-xl font-black text-slate-900">ព័ត៌មានអតិថិជន (Checkout)</h2>
-                  <button @click="showCheckout = false" class="text-slate-400 hover:text-slate-800 bg-white w-8 h-8 rounded-full flex items-center justify-center shadow-sm"><i class="ph-bold ph-x"></i></button>
+          <div class="relative z-10 bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-visible animate-pop font-['Noto_Serif_Khmer'] flex flex-col max-h-[90vh]">
+              
+              <div class="p-6 border-b border-slate-100 bg-slate-50 flex justify-between items-center rounded-t-[2.5rem] shrink-0">
+                  <h2 class="text-xl font-black text-slate-900 flex items-center gap-2">
+                      <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center"><i class="ph-bold ph-shopping-cart"></i></div>
+                      ព័ត៌មានអតិថិជន
+                  </h2>
+                  <button @click="showCheckout = false" class="text-slate-400 hover:text-slate-800 hover:bg-slate-200 bg-white border border-slate-200 w-8 h-8 rounded-full flex items-center justify-center shadow-sm transition"><i class="ph-bold ph-x"></i></button>
               </div>
 
-              <div class="p-6 space-y-4">
-                  <div class="flex gap-2 p-1 bg-slate-100 rounded-xl mb-4">
-                      <button @click="form.city = 'ភ្នំពេញ'" :class="form.city === 'ភ្នំពេញ' ? 'bg-white shadow-sm text-blue-600' : 'text-slate-500'" class="flex-1 py-2 rounded-lg text-sm font-bold transition">ភ្នំពេញ (COD)</button>
-                      <button @click="form.city = 'ខេត្ត'" :class="form.city !== 'ភ្នំពេញ' ? 'bg-white shadow-sm text-blue-600' : 'text-slate-500'" class="flex-1 py-2 rounded-lg text-sm font-bold transition">តាមខេត្ត</button>
+              <div class="p-6 space-y-4 overflow-y-auto custom-scrollbar">
+                  
+                  <div class="flex gap-2 p-1 bg-slate-100/80 rounded-xl mb-2 border border-slate-200">
+                      <button @click="form.city = 'ភ្នំពេញ'" :class="form.city === 'ភ្នំពេញ' ? 'bg-white shadow-sm text-blue-600 border border-slate-200' : 'text-slate-500 hover:text-slate-700'" class="flex-1 py-2.5 rounded-lg text-sm font-bold transition-all">ភ្នំពេញ (COD)</button>
+                      <button @click="form.city = 'ខេត្ត'" :class="form.city !== 'ភ្នំពេញ' ? 'bg-white shadow-sm text-blue-600 border border-slate-200' : 'text-slate-500 hover:text-slate-700'" class="flex-1 py-2.5 rounded-lg text-sm font-bold transition-all">តាមខេត្ត</button>
+                  </div>
+
+                  <div class="space-y-1.5 relative">
+                      <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">ឈ្មោះអតិថិជន *</label>
+                      <div class="relative">
+                          <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none"><i class="ph-fill ph-user text-slate-400 text-lg"></i></div>
+                          <input 
+                              v-model="form.name" 
+                              type="text" 
+                              ref="nameInput"
+                              @focus="showCustomerDropdown = true"
+                              @blur="hideCustomerDropdown"
+                              @input="handleNameInput"
+                              @keydown.down.prevent="highlightNextCustomer"
+                              @keydown.up.prevent="highlightPrevCustomer"
+                              @keydown.enter.prevent="handleNameEnter"
+                              class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-12 pr-10 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:bg-white outline-none transition-all font-bold text-slate-800" 
+                              placeholder="ឧ. ដារ៉ូ">
+                          
+                          <button v-if="form.name" @click.prevent="clearCustomerForm" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-red-500 transition-colors">
+                              <i class="ph-fill ph-x-circle text-xl"></i>
+                          </button>
+                      </div>
+
+                      <transition name="fade">
+                          <ul v-if="showCustomerDropdown && filteredCustomers.length > 0" class="absolute z-50 w-full bg-white border border-slate-100 rounded-xl shadow-2xl mt-1 max-h-48 overflow-y-auto custom-scrollbar">
+                              <li v-for="(cust, index) in filteredCustomers" :key="index"
+                                  @mousedown.prevent="selectCustomer(cust)"
+                                  @mouseenter="highlightedCustomerIndex = index"
+                                  :class="{'bg-blue-50 text-blue-700 border-l-4 border-blue-500': highlightedCustomerIndex === index, 'text-slate-700 border-l-4 border-transparent': highlightedCustomerIndex !== index}"
+                                  class="px-4 py-3 cursor-pointer flex justify-between items-center transition-all border-b border-slate-50 last:border-0">
+                                  <span class="font-bold">{{ cust.name }}</span>
+                                  <span class="text-[11px] font-medium opacity-70 bg-white/50 px-2 py-0.5 rounded-md flex items-center gap-1"><i class="ph-fill ph-phone"></i> {{ cust.phone }}</span>
+                              </li>
+                          </ul>
+                      </transition>
                   </div>
 
                   <div class="space-y-1.5">
-                      <label class="text-xs font-bold text-slate-500">ឈ្មោះអតិថិជន *</label>
+                      <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">លេខទូរស័ព្ទ *</label>
                       <div class="relative">
-                          <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none"><i class="ph-fill ph-user text-slate-400"></i></div>
-                          <input v-model="form.name" type="text" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-12 pr-4 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="ឧ. សុខ ភក្តី">
+                          <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none"><i class="ph-fill ph-phone text-slate-400 text-lg"></i></div>
+                          <input 
+                              v-model="form.phone" 
+                              type="tel" 
+                              ref="phoneInput"
+                              @keydown.enter.prevent="focusNextField"
+                              class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-12 pr-4 focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all font-medium text-slate-800" 
+                              placeholder="012 345 678">
                       </div>
                   </div>
 
-                  <div class="space-y-1.5">
-                      <label class="text-xs font-bold text-slate-500">លេខទូរស័ព្ទ *</label>
-                      <div class="relative">
-                          <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none"><i class="ph-fill ph-phone text-slate-400"></i></div>
-                          <input v-model="form.phone" type="tel" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-12 pr-4 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="012 345 678">
-                      </div>
-                  </div>
-
-                  <div v-if="form.city === 'ភ្នំពេញ'" class="space-y-4 animate-fade">
+                  <div v-if="form.city === 'ភ្នំពេញ'" class="space-y-5 animate-fade pt-2">
                       <div class="space-y-1.5">
-                          <label class="text-xs font-bold text-slate-500">ទីតាំង (Google Maps Link)</label>
+                          <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">ទីតាំង (Google Maps Link)</label>
                           <div class="relative">
-                              <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none"><i class="ph-fill ph-map-pin text-slate-400"></i></div>
-                              <input v-model="form.mapsLink" type="url" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-12 pr-4 focus:ring-2 focus:ring-blue-500 outline-none text-blue-500" placeholder="https://maps.app.goo.gl/...">
+                              <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none"><i class="ph-fill ph-map-pin text-slate-400 text-lg"></i></div>
+                              <input 
+                                  v-model="form.mapsLink" 
+                                  type="url" 
+                                  ref="mapsLinkInput"
+                                  @keydown.enter.prevent="processPendingOrder"
+                                  class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-12 pr-4 focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all text-blue-600 font-medium" 
+                                  placeholder="http://googleusercontent.com/maps...">
                           </div>
                       </div>
                       
-                      <div class="bg-orange-50 border border-orange-100 p-3 rounded-xl flex gap-3 items-start">
+                      <div class="bg-orange-50 border border-orange-100 p-3.5 rounded-xl flex gap-3 items-start shadow-sm">
                           <i class="ph-fill ph-warning-circle text-orange-500 text-xl mt-0.5"></i>
-                          <p class="text-xs text-orange-800 font-medium leading-relaxed">កំណត់សម្គាល់: ការកម្ម៉ង់នេះមិនទាន់ទូទាត់ប្រាក់ទេ។ អតិថិជនត្រូវទូទាត់ប្រាក់ពេលអ្នកដឹកជញ្ជូនយកឥវ៉ាន់ទៅដល់ទីតាំង (COD)។</p>
+                          <p class="text-[12px] text-orange-800 font-medium leading-relaxed">កំណត់សម្គាល់: ការកម្ម៉ង់នេះមិនទាន់ទូទាត់ប្រាក់ទេ។ អតិថិជនត្រូវទូទាត់ប្រាក់ពេលអ្នកដឹកជញ្ជូនយកឥវ៉ាន់ទៅដល់ទីតាំង (COD)។</p>
                       </div>
 
-                      <button @click="processPendingOrder" :disabled="loading" class="w-full py-4 font-bold bg-orange-500 text-white rounded-xl hover:bg-orange-600 transition shadow-lg flex justify-center items-center gap-2">
+                      <button @click="processPendingOrder" :disabled="loading" class="w-full py-4 font-bold bg-orange-500 text-white rounded-xl hover:bg-orange-600 hover:shadow-orange-500/30 transition-all shadow-lg flex justify-center items-center gap-2">
                           <span v-if="loading" class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
                           <span v-else>រក្សាទុករង់ចាំបង់ប្រាក់ (Save Pending)</span>
                       </button>
                   </div>
 
-                  <div v-if="form.city !== 'ភ្នំពេញ'" class="space-y-4 animate-fade">
+                  <div v-if="form.city !== 'ភ្នំពេញ'" class="space-y-4 animate-fade pt-2">
                       <div class="grid grid-cols-2 gap-3">
                           <div class="space-y-1.5">
-                              <label class="text-xs font-bold text-slate-500">ខេត្ត</label>
-                              <input v-model="form.province" type="text" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="បញ្ជូលខេត្ត...">
+                              <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">ខេត្ត</label>
+                              <input 
+                                  v-model="form.province" 
+                                  type="text" 
+                                  ref="provinceInput"
+                                  @keydown.enter.prevent="() => $refs.branchInput.focus()"
+                                  class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all font-medium" 
+                                  placeholder="បញ្ជូលខេត្ត...">
                           </div>
                           <div class="space-y-1.5">
-                              <label class="text-xs font-bold text-slate-500">ក្រុមហ៊ុនដឹកជញ្ជូន</label>
-                              <select v-model="form.transportCompany" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 focus:ring-2 focus:ring-blue-500 outline-none appearance-none font-bold text-blue-700">
+                              <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">ក្រុមហ៊ុនដឹកជញ្ជូន</label>
+                              <select 
+                                  v-model="form.transportCompany" 
+                                  ref="transportSelect"
+                                  @keydown.enter.prevent="() => $refs.branchInput.focus()"
+                                  class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none appearance-none font-bold text-blue-700 transition-all cursor-pointer">
                                   <option value="វីរៈប៊ុនថាំង">វីរៈប៊ុនថាំង</option>
                                   <option value="J&T">J&T Express</option>
                                   <option value="ឡានឈ្នួល">ឡានឈ្នួល</option>
@@ -309,11 +400,17 @@
                           </div>
                       </div>
                       <div class="space-y-1.5">
-                          <label class="text-xs font-bold text-slate-500">បញ្ជាក់សាខា / កន្លែងផ្ញើ</label>
-                          <input v-model="form.branch" type="text" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="ឧ. សាខាអូឡាំពិក...">
+                          <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">បញ្ជាក់សាខា / កន្លែងផ្ញើ</label>
+                          <input 
+                              v-model="form.branch" 
+                              type="text" 
+                              ref="branchInput"
+                              @keydown.enter.prevent="processOrder"
+                              class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all font-medium" 
+                              placeholder="ឧ. សាខាអូឡាំពិក...">
                       </div>
                       
-                      <button @click="processOrder" :disabled="loading" class="w-full py-4 font-bold bg-slate-900 text-white rounded-xl hover:bg-blue-600 transition shadow-lg flex justify-center items-center gap-2">
+                      <button @click="processOrder" :disabled="loading" class="w-full py-4 font-bold bg-slate-900 text-white rounded-xl hover:bg-blue-600 hover:shadow-blue-600/30 transition-all shadow-lg flex justify-center items-center gap-2 mt-2">
                           <span v-if="loading" class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
                           <span v-else>បន្តទៅទូទាត់តាម QR: ${{ cartTotal.toLocaleString('en-US', {minimumFractionDigits: 2}) }}</span>
                       </button>
@@ -322,56 +419,113 @@
           </div>
       </div>
 
-      <div v-if="showQR" class="fixed inset-0 z-[110] flex items-center justify-center p-4 no-print">
-          <div class="absolute inset-0 bg-slate-900/85 backdrop-blur-md"></div>
-          <div class="relative bg-white w-full max-w-[340px] rounded-[2.5rem] p-8 text-center shadow-2xl overflow-hidden animate-pop">
-              <div class="absolute top-0 left-0 w-full h-1.5 bg-slate-100">
-                  <div class="h-full bg-gradient-to-r from-blue-500 via-teal-400 to-blue-500 transition-all duration-1000 ease-linear" :style="{ width: (qrTimeLeft / 300 * 100) + '%' }"></div>
-              </div>
-              
-              <div class="flex items-center justify-center w-16 h-16 bg-blue-50 text-blue-600 rounded-full mx-auto mb-4 shadow-inner"><i class="ph-fill ph-qr-code text-3xl"></i></div>
-              <h3 class="text-2xl font-black text-slate-900 font-['Noto_Serif_Khmer']">ស្កេនដើម្បីទូទាត់ប្រាក់</h3>
-              
-              <div class="mt-3 text-sm">
-                  <p class="font-bold text-slate-800 uppercase">{{ currentMerchantName }}</p>
-                  <p class="text-[10px] text-slate-400 font-bold tracking-widest mt-0.5">ID: {{ currentMerchantId }}</p>
+      <div v-if="showEditModal" class="fixed inset-0 z-[120] flex items-center justify-center p-4 no-print">
+          <div @click="showEditModal = false" class="absolute inset-0 bg-slate-900/70 backdrop-blur-sm"></div>
+          <div class="relative z-10 bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl overflow-hidden animate-pop font-['Noto_Serif_Khmer']">
+              <div class="p-6 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+                  <h2 class="text-xl font-black text-slate-900">កែប្រែព័ត៌មានអតិថិជន</h2>
+                  <button @click="showEditModal = false" class="text-slate-400 hover:text-slate-800 bg-white w-8 h-8 rounded-full flex items-center justify-center shadow-sm"><i class="ph-bold ph-x"></i></button>
               </div>
 
-              <div class="bg-white p-4 rounded-[1.5rem] border-2 border-slate-100 shadow-sm inline-block mb-3 mt-4"><div id="qrcode"></div></div>
+              <div class="p-6 space-y-4">
+                  <div class="space-y-1.5">
+                      <label class="text-xs font-bold text-slate-500">ឈ្មោះអតិថិជន *</label>
+                      <input v-model="editForm.name" type="text" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 focus:ring-2 focus:ring-blue-500 outline-none">
+                  </div>
+                  <div class="space-y-1.5">
+                      <label class="text-xs font-bold text-slate-500">លេខទូរស័ព្ទ *</label>
+                      <input v-model="editForm.phone" type="text" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 focus:ring-2 focus:ring-blue-500 outline-none">
+                  </div>
+                  <div class="space-y-1.5">
+                      <label class="text-xs font-bold text-slate-500">ទីតាំង (រាជធានី/ខេត្ត) *</label>
+                      <input v-model="editForm.location" type="text" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 focus:ring-2 focus:ring-blue-500 outline-none">
+                  </div>
+                  
+                  <div class="grid grid-cols-2 gap-3" v-if="editForm.location !== 'ភ្នំពេញ' && editForm.location !== 'ភ្នំពេញ (COD)'">
+                      <div class="space-y-1.5">
+                          <label class="text-xs font-bold text-slate-500">ក្រុមហ៊ុនដឹកជញ្ជូន</label>
+                          <input v-model="editForm.transportCompany" type="text" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 focus:ring-2 focus:ring-blue-500 outline-none">
+                      </div>
+                      <div class="space-y-1.5">
+                          <label class="text-xs font-bold text-slate-500">សាខា / កន្លែងផ្ញើ</label>
+                          <input v-model="editForm.branch" type="text" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 focus:ring-2 focus:ring-blue-500 outline-none">
+                      </div>
+                  </div>
+
+                  <button @click="saveEditOrder" :disabled="loading" class="w-full py-4 font-bold bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition shadow-lg flex justify-center items-center gap-2 mt-2">
+                      <span v-if="loading" class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                      <span v-else>រក្សាទុកការកែប្រែ</span>
+                  </button>
+              </div>
+          </div>
+      </div>
+
+      <div v-if="showQR" class="fixed inset-0 z-[110] flex items-center justify-center p-4 no-print">
+          <div class="absolute inset-0 bg-slate-900/85 backdrop-blur-md"></div>
+          
+          <div class="relative bg-white w-full max-w-[340px] rounded-[2.5rem] p-8 pb-6 text-center shadow-2xl animate-pop">
               
-              <div class="mb-3 text-sm font-bold font-['Noto_Serif_Khmer']" :class="qrTimeLeft < 60 ? 'text-red-500 animate-pulse' : 'text-slate-500'">
+              <button @click="cancelPayment" class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-red-100 hover:text-red-500 transition-colors" title="បោះបង់ការទូទាត់">
+                  <i class="ph-bold ph-x text-lg"></i>
+              </button>
+
+              <div class="absolute top-0 left-0 w-full h-1.5 bg-slate-100 rounded-t-[2.5rem] overflow-hidden">
+                  <div class="h-full bg-gradient-to-r from-blue-500 via-teal-400 to-blue-500 transition-all duration-1000 ease-linear" :style="{ width: (qrTimeLeft / 330 * 100) + '%' }"></div>
+              </div>
+              
+              <div class="flex items-center justify-center w-16 h-16 bg-blue-50 text-blue-600 rounded-full mx-auto mb-3 shadow-inner mt-2"><i class="ph-fill ph-qr-code text-3xl"></i></div>
+              <h3 class="text-2xl font-black text-slate-900 font-['Noto_Serif_Khmer']">ស្កេនដើម្បីទូទាត់ប្រាក់</h3>
+              
+              <div id="qr-capture-area" class="bg-white p-5 rounded-[1.5rem] border-2 border-slate-100 shadow-sm inline-block mb-4 mt-4 w-full">
+                  <div class="text-sm mb-3">
+                      <p class="font-bold text-slate-800 uppercase">{{ currentMerchantName }}</p>
+                      <p class="text-[10px] text-slate-400 font-bold tracking-widest mt-0.5">ID: {{ currentMerchantId }}</p>
+                  </div>
+                  
+                  <div id="qrcode" class="flex justify-center"></div>
+                  
+                  <div class="text-2xl font-black text-slate-900 mt-4 border-t border-slate-100 pt-3">
+                      ${{ currentOrderTotal.toLocaleString('en-US', {minimumFractionDigits: 2}) }}
+                  </div>
+              </div>
+              
+              <div class="mb-4 text-sm font-bold font-['Noto_Serif_Khmer']" :class="qrTimeLeft < 60 ? 'text-red-500 animate-pulse' : 'text-slate-500'">
                   ផុតកំណត់ក្នុង: {{ formatTime(qrTimeLeft) }}
               </div>
 
-              <div class="text-4xl font-black text-slate-900 mb-5">${{ currentOrderTotal.toLocaleString('en-US', {minimumFractionDigits: 2}) }}</div>
-              <button @click="cancelPayment" class="w-full py-3.5 rounded-xl text-red-500 font-bold bg-red-50 hover:bg-red-100 transition-colors font-['Noto_Serif_Khmer']">បោះបង់ការទូទាត់</button>
+              <button @click="downloadQRImage" class="w-full py-3.5 rounded-xl text-blue-600 font-bold bg-blue-50 hover:bg-blue-600 hover:text-white transition-colors flex items-center justify-center gap-2 font-['Noto_Serif_Khmer'] shadow-sm">
+                  <i class="ph-bold ph-download-simple text-xl"></i> Save រូបថត QR
+              </button>
           </div>
       </div>
 
       <div v-if="showInvoice" class="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm">
           <div class="relative w-full max-w-md flex flex-col h-full md:h-auto max-h-[90vh]">
               
-              <div class="flex justify-between items-center mb-4 no-print shrink-0 bg-white/10 p-2 rounded-2xl backdrop-blur">
+              <div class="flex justify-between items-center mb-4 no-print shrink-0 bg-white/10 p-2 rounded-2xl backdrop-blur border border-white/20">
                   <button @click="closeInvoice" class="w-10 h-10 bg-white/20 hover:bg-white/40 rounded-full text-white flex items-center justify-center transition"><i class="ph-bold ph-x text-xl"></i></button>
                   <div class="flex gap-2">
-                      <button @click="downloadInvoiceImage" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-xl flex items-center gap-2 transition shadow-lg font-['Noto_Serif_Khmer']"><i class="ph-bold ph-download-simple"></i> ទាញយករូបភាព</button>
+                      <button @click="downloadInvoiceImage" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-xl flex items-center gap-2 transition shadow-lg font-['Noto_Serif_Khmer']"><i class="ph-bold ph-download-simple"></i> Save រូបថត</button>
                       <button @click="printInvoice" class="px-4 py-2 bg-white text-slate-800 text-sm font-bold rounded-xl flex items-center gap-2 hover:bg-slate-100 transition shadow-lg font-['Noto_Serif_Khmer']"><i class="ph-bold ph-printer"></i> Print</button>
                   </div>
               </div>
 
-              <div id="invoice-capture" class="bg-white rounded-2xl shadow-2xl overflow-y-auto flex-1 p-6 md:p-8 font-['Noto_Serif_Khmer'] text-slate-800 relative">
-                  <div v-if="currentInvoice.paymentStatus === 'PENDING'" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-10 pointer-events-none rotate-[-30deg]">
+              <div id="invoice-capture" class="bg-white rounded-[2rem] shadow-2xl overflow-y-auto flex-1 p-6 md:p-8 font-['Noto_Serif_Khmer'] text-slate-800 relative">
+                  <div v-if="currentInvoice.paymentStatus === 'PENDING'" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-5 pointer-events-none rotate-[-30deg]">
                       <span class="text-6xl font-black text-orange-600 border-8 border-orange-600 px-6 py-2 rounded-3xl uppercase tracking-widest">រង់ចាំទូទាត់</span>
                   </div>
-
-                  <div class="text-center mb-6">
-                      <div class="w-14 h-14 bg-slate-900 rounded-xl flex items-center justify-center text-white text-2xl font-black mx-auto mb-2">D</div>
-                      <h2 class="text-xl font-black">វិក្កយបត្រ (INVOICE)</h2>
-                      <p class="text-xs text-slate-500">កាលបរិច្ឆេទ: {{ formatDate(currentInvoice.createdAt) }}</p>
+                  <div v-if="currentInvoice.paymentStatus === 'PAID'" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-5 pointer-events-none rotate-[-30deg]">
+                      <span class="text-6xl font-black text-slate-900 border-8 border-slate-900 px-6 py-2 rounded-3xl uppercase tracking-widest">PAID</span>
                   </div>
 
-                  <div class="bg-slate-50 p-4 rounded-xl mb-6 text-sm">
-                      <div class="grid grid-cols-3 gap-y-2">
+                  <div class="text-center mb-6 border-b border-slate-100 pb-6">
+                      <div class="w-14 h-14 bg-slate-900 rounded-xl flex items-center justify-center text-white text-2xl font-black mx-auto mb-3 shadow-md">S</div>
+                      <h2 class="text-xl font-black tracking-widest">វិក្កយបត្រ (INVOICE)</h2>
+                      <p class="text-xs text-slate-500 mt-1">កាលបរិច្ឆេទ: {{ formatDate(currentInvoice.createdAt) }}</p>
+                  </div>
+
+                  <div class="bg-slate-50 p-5 rounded-2xl mb-6 text-sm border border-slate-100">
+                      <div class="grid grid-cols-3 gap-y-3">
                           <span class="text-slate-500 font-medium">អតិថិជន:</span>
                           <span class="col-span-2 font-bold">{{ currentInvoice.customerName }}</span>
                           <span class="text-slate-500 font-medium">ទូរស័ព្ទ:</span>
@@ -386,30 +540,30 @@
                   <table class="w-full mb-6 text-sm border-collapse">
                       <thead>
                           <tr class="border-b-2 border-slate-200 text-slate-500">
-                              <th class="text-left py-2">បរិយាយ</th>
-                              <th class="text-center py-2">ចំនួន</th>
-                              <th class="text-right py-2">តម្លៃ</th>
+                              <th class="text-left py-2 pb-3">បរិយាយ</th>
+                              <th class="text-center py-2 pb-3">ចំនួន</th>
+                              <th class="text-right py-2 pb-3">តម្លៃ</th>
                           </tr>
                       </thead>
                       <tbody class="divide-y divide-slate-100">
                           <tr v-for="item in currentInvoice.items" :key="item.id">
-                              <td class="py-3">
-                                  <p class="font-bold">{{ item.name }}</p>
-                                  <p class="text-[10px] text-slate-500 uppercase">{{ item.type === 'wholesale' ? 'បោះដុំ' : 'រាយ' }} ({{ item.unit }})</p>
+                              <td class="py-4">
+                                  <p class="font-bold text-slate-900">{{ item.name }}</p>
+                                  <p class="text-[10px] font-bold text-slate-400 mt-0.5 uppercase">{{ item.type === 'wholesale' ? 'បោះដុំ' : 'រាយ' }} ({{ item.unit }})</p>
                               </td>
-                              <td class="py-3 text-center font-bold">x{{ item.qty }}</td>
-                              <td class="py-3 text-right font-bold">${{ (item.price * item.qty).toLocaleString('en-US', {minimumFractionDigits: 2}) }}</td>
+                              <td class="py-4 text-center font-black">x{{ item.qty }}</td>
+                              <td class="py-4 text-right font-black">${{ (item.price * item.qty).toLocaleString('en-US', {minimumFractionDigits: 2}) }}</td>
                           </tr>
                       </tbody>
                   </table>
 
-                  <div class="border-t-2 border-slate-800 pt-4 flex justify-between items-center mb-6">
+                  <div class="border-t-2 border-slate-800 pt-4 flex justify-between items-center mb-8">
                       <span class="font-bold text-lg">សរុប (TOTAL):</span>
-                      <span class="font-black text-2xl">${{ currentInvoice.totalAmount.toLocaleString('en-US', {minimumFractionDigits: 2}) }}</span>
+                      <span class="font-black text-2xl text-blue-600">${{ currentInvoice.totalAmount.toLocaleString('en-US', {minimumFractionDigits: 2}) }}</span>
                   </div>
 
-                  <div class="text-center text-xs text-slate-500 border-t border-slate-100 pt-4">
-                      <p>បម្រើដោយ: <b>{{ currentInvoice.sellerName }}</b></p>
+                  <div class="text-center text-xs text-slate-400 border-t border-slate-100 pt-6">
+                      <p>បម្រើដោយ: <b class="text-slate-700">{{ currentInvoice.sellerName }}</b></p>
                       <p class="mt-1">សូមអរគុណសម្រាប់ការគាំទ្រ!</p>
                   </div>
               </div>
@@ -426,8 +580,9 @@
               </div>
 
               <div class="flex gap-2 mb-4">
-                  <button @click="pendingPayMethod = 'qr'" :class="pendingPayMethod === 'qr' ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600'" class="flex-1 py-3 rounded-xl font-bold text-sm transition flex flex-col items-center justify-center gap-1"><i class="ph-bold ph-qr-code text-xl"></i> QR KHQR</button>
-                  <button @click="pendingPayMethod = 'cash'" :class="pendingPayMethod === 'cash' ? 'bg-green-600 text-white' : 'bg-slate-100 text-slate-600'" class="flex-1 py-3 rounded-xl font-bold text-sm transition flex flex-col items-center justify-center gap-1"><i class="ph-bold ph-money text-xl"></i> លុយសុទ្ធ</button>
+                  <button @click="pendingPayMethod = 'qr'" :class="pendingPayMethod === 'qr' ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600'" class="flex-1 py-3 rounded-xl font-bold text-sm transition flex flex-col items-center justify-center gap-1"><i class="ph-bold ph-qr-code text-xl"></i> បង្ហាញ QR ម្ដងទៀត</button>
+                  
+                  <button v-if="pendingOrderToPay.location && pendingOrderToPay.location.includes('ភ្នំពេញ')" @click="pendingPayMethod = 'cash'" :class="pendingPayMethod === 'cash' ? 'bg-green-600 text-white' : 'bg-slate-100 text-slate-600'" class="flex-1 py-3 rounded-xl font-bold text-sm transition flex flex-col items-center justify-center gap-1"><i class="ph-bold ph-money text-xl"></i> លុយសុទ្ធ</button>
               </div>
 
               <div v-if="pendingPayMethod === 'cash'" class="space-y-3 mb-4 animate-fade">
@@ -436,10 +591,10 @@
               </div>
 
               <div class="flex gap-2">
-                  <button @click="showPendingPayModal = false" class="px-4 py-3 rounded-xl font-bold text-slate-500 hover:bg-slate-100">បោះបង់</button>
+                  <button @click="showPendingPayModal = false" class="px-4 py-3 rounded-xl font-bold text-slate-500 hover:bg-slate-100 transition">បោះបង់</button>
                   <button @click="confirmPendingPayment" :disabled="loading" class="flex-1 py-3 rounded-xl font-bold text-white shadow-lg transition flex items-center justify-center" :class="pendingPayMethod === 'cash' ? 'bg-green-600 hover:bg-green-700' : 'bg-blue-600 hover:bg-blue-700'">
                       <span v-if="loading" class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-                      <span v-else>យល់ព្រមទូទាត់</span>
+                      <span v-else>{{ pendingPayMethod === 'qr' ? 'បង្កើត QR' : 'យល់ព្រមទូទាត់' }}</span>
                   </button>
               </div>
           </div>
@@ -448,8 +603,8 @@
       <div class="fixed bottom-20 md:bottom-4 right-0 z-[200] p-4 flex flex-col gap-3 w-full max-w-sm pointer-events-none no-print">
           <transition-group name="toast">
               <div v-for="note in notifications" :key="note.id" class="pointer-events-auto flex items-center gap-4 bg-white border border-slate-100 shadow-2xl p-4 rounded-2xl">
-                  <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0" :class="note.type === 'error' ? 'bg-red-50 text-red-500' : 'bg-green-50 text-green-500'">
-                      <i class="ph-fill text-xl" :class="note.type === 'error' ? 'ph-warning-circle' : 'ph-check-circle'"></i>
+                  <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0" :class="note.type === 'error' ? 'bg-red-50 text-red-500' : note.type === 'warning' ? 'bg-orange-50 text-orange-500' : 'bg-green-50 text-green-500'">
+                      <i class="ph-fill text-xl" :class="note.type === 'error' ? 'ph-warning-circle' : note.type === 'warning' ? 'ph-info' : 'ph-check-circle'"></i>
                   </div>
                   <div>
                       <h4 class="font-bold text-slate-900 text-sm font-['Noto_Serif_Khmer']">{{ note.title }}</h4>
@@ -469,13 +624,15 @@ import { io } from 'socket.io-client';
 import qrcode from 'qrcode-generator';
 import html2canvas from 'html2canvas';
 
-const router = useRouter();
+// បញ្ចូល Component Account
+import MyAccount from '../components/MyAccount.vue';
 
-// រៀបចំ API URL (ប្តូរជា Domain ពិតប្រាកដរបស់អ្នក)
+const router = useRouter();
 const API_URL = "https://api.sellerorder.fyi";
 
-// អថេរចាំបាច់
+// State Variables
 const currentView = ref('pos'); 
+const showLogoutConfirm = ref(false);
 const userRole = ref(''); 
 const loggedInUserFullName = ref('');
 const userPhotoUrl = ref('');
@@ -502,6 +659,109 @@ const form = reactive({
   mapsLink: '', transportCompany: 'វីរៈប៊ុនថាំ', branch: '' 
 });
 
+// ================= START: មុខងារ Smart Dropdown និង Keyboard =================
+const showCustomerDropdown = ref(false);
+const highlightedCustomerIndex = ref(-1);
+
+const nameInput = ref(null);
+const phoneInput = ref(null);
+const mapsLinkInput = ref(null);
+const provinceInput = ref(null);
+const transportSelect = ref(null);
+const branchInput = ref(null);
+
+const uniqueCustomers = computed(() => {
+    const custMap = new Map();
+    reports.value.forEach(r => {
+        if (r.customerName && !custMap.has(r.customerName)) {
+            custMap.set(r.customerName, {
+                name: r.customerName,
+                phone: r.customerPhone,
+                location: r.location,
+                mapsLink: r.mapsLink,
+                transportCompany: r.transportCompany,
+                branch: r.branch
+            });
+        }
+    });
+    return Array.from(custMap.values());
+});
+
+const filteredCustomers = computed(() => {
+    if (!form.name) return [];
+    const search = form.name.toLowerCase();
+    return uniqueCustomers.value.filter(c => 
+        (c.name && c.name.toLowerCase().includes(search)) || 
+        (c.phone && c.phone.includes(search))
+    ).slice(0, 5);
+});
+
+const handleNameInput = () => {
+    showCustomerDropdown.value = true;
+    highlightedCustomerIndex.value = -1;
+    if (form.name.trim() === '') {
+        form.phone = ''; form.mapsLink = ''; form.province = ''; form.branch = '';
+    }
+};
+
+const clearCustomerForm = () => {
+    form.name = ''; form.phone = ''; form.mapsLink = ''; form.province = ''; form.branch = '';
+    showCustomerDropdown.value = false;
+    if(nameInput.value) nameInput.value.focus();
+};
+
+const hideCustomerDropdown = () => {
+    setTimeout(() => { showCustomerDropdown.value = false; }, 200);
+};
+
+const selectCustomer = (customer) => {
+    form.name = customer.name;
+    form.phone = customer.phone || '';
+    
+    if (customer.location === 'ភ្នំពេញ' || customer.location === 'ភ្នំពេញ (COD)') {
+        form.city = 'ភ្នំពេញ';
+        form.mapsLink = customer.mapsLink || '';
+    } else {
+        form.city = 'ខេត្ត';
+        form.province = customer.location || '';
+        form.transportCompany = customer.transportCompany || 'វីរៈប៊ុនថាំ';
+        form.branch = customer.branch || '';
+    }
+    
+    showCustomerDropdown.value = false;
+    setTimeout(() => { if(phoneInput.value) phoneInput.value.focus(); }, 50);
+};
+
+const highlightNextCustomer = () => {
+    if (showCustomerDropdown.value && highlightedCustomerIndex.value < filteredCustomers.value.length - 1) {
+        highlightedCustomerIndex.value++;
+    }
+};
+
+const highlightPrevCustomer = () => {
+    if (showCustomerDropdown.value && highlightedCustomerIndex.value > 0) {
+        highlightedCustomerIndex.value--;
+    }
+};
+
+const handleNameEnter = () => {
+    if (showCustomerDropdown.value && highlightedCustomerIndex.value >= 0 && filteredCustomers.value.length > 0) {
+        selectCustomer(filteredCustomers.value[highlightedCustomerIndex.value]);
+    } else {
+        showCustomerDropdown.value = false;
+        if(phoneInput.value) phoneInput.value.focus();
+    }
+};
+
+const focusNextField = () => {
+    if (form.city === 'ភ្នំពេញ') {
+        if(mapsLinkInput.value) mapsLinkInput.value.focus();
+    } else {
+        if(provinceInput.value) provinceInput.value.focus();
+    }
+};
+// ================= END: មុខងារ Smart Dropdown និង Keyboard =================
+
 const showInvoice = ref(false);
 const currentInvoice = ref(null);
 
@@ -511,7 +771,11 @@ const pendingPayMethod = ref('qr');
 const pendingCashAmount = ref('');
 const pendingCashNote = ref('');
 
-const qrTimeLeft = ref(300);
+const showEditModal = ref(false);
+const editForm = reactive({ id: '', name: '', phone: '', location: '', transportCompany: '', branch: '' });
+
+// ម៉ោងកំណត់ 330 វិនាទី (5នាទី 30វិនាទី)
+const qrTimeLeft = ref(330);
 const currentMerchantId = ref('');
 const currentMerchantName = ref('');
 
@@ -519,14 +783,14 @@ let timerInterval = null, pollTimer = null;
 const currentHash = ref('');
 const currentOrderTotal = ref(0);
 
-// Function Alert Message
+const activePendingOrderId = ref(null); 
+
 const notify = (title, message, type = 'success') => {
   const id = Date.now();
   notifications.value.push({ id, title, message, type });
   setTimeout(() => notifications.value = notifications.value.filter(n => n.id !== id), 4000);
 };
 
-// ផ្តើមកម្មវិធីពេលចូលទំព័រ
 onMounted(() => {
   const sessionData = localStorage.getItem('dpos_session');
   if (sessionData) {
@@ -537,14 +801,11 @@ onMounted(() => {
       adminName.value = session.adminName || 'Admin';
       loggedInUserId.value = session.uid || '';
       adminId.value = session.createdBy || '';
-      
       fetchProducts();
       fetchReports();
   } else {
-      router.push('/login'); // បើអត់មាន Session ទេ ឱ្យត្រលប់ទៅ Login វិញ
+      router.push('/login'); 
   }
-
-  // Socket.io ស្តាប់ពេលទូទាត់ជោគជ័យ
   socket.on("payment-success", (data) => { 
       if(data.md5 === currentHash.value) handleSuccess(); 
   });
@@ -555,7 +816,7 @@ const executeLogout = () => {
   router.push('/login'); 
 };
 
-// ----------------- Product & Cart -----------------
+// ទាញយកទិន្នន័យផលិតផល និង Incentive
 const fetchProducts = async () => {
   if (!db) return;
   isLoadingProducts.value = true;
@@ -568,7 +829,9 @@ const fetchProducts = async () => {
               id: doc.id, name: data.name || "Unknown",
               retailPrice: Number(data.retailPrice) || 0, retailUnit: data.retailUnit || "ដប",
               wholesalePrice: Number(data.wholesalePrice) || 0, wholesaleUnit: data.wholesaleUnit || "កេះ",
-              stockQty: Number(data.quantity) || 0, image: data.image || ""
+              stockQty: Number(data.quantity) || 0, image: data.image || "",
+              sellerIncentive: Number(data.sellerIncentive) || 0,
+              dealerIncentive: Number(data.dealerIncentive) || 0
           });
       });
       products.value = fetchedData;
@@ -580,11 +843,16 @@ const addToCart = (product, type = 'retail') => {
   const isWholesale = type === 'wholesale';
   const targetPrice = isWholesale ? product.wholesalePrice : product.retailPrice;
   const targetUnit = isWholesale ? product.wholesaleUnit : product.retailUnit;
+  const targetIncentive = isWholesale ? product.dealerIncentive : product.sellerIncentive;
   const cartItemId = product.id + '_' + type;
 
   const existing = cart.value.find(item => item.cartItemId === cartItemId);
   if(existing) existing.qty++;
-  else cart.value.push({ id: product.id, cartItemId, name: product.name, image: product.image, type, unit: targetUnit, price: targetPrice, qty: 1 });
+  else cart.value.push({ 
+      id: product.id, cartItemId, name: product.name, image: product.image, 
+      type, unit: targetUnit, price: targetPrice, qty: 1,
+      incentiveAmount: targetIncentive 
+  });
   notify("ចូលកន្ត្រក", `បានបន្ថែម ${product.name}`);
 };
 
@@ -597,14 +865,83 @@ const startCheckout = () => {
   if (cartTotalQty.value === 0) return;
   showCart.value = false;
   showCheckout.value = true;
+  activePendingOrderId.value = null;
   form.name = ''; form.phone = ''; form.city = 'ភ្នំពេញ'; form.province = ''; form.mapsLink = ''; form.branch = '';
 };
 
-// ----------------- Order Processing -----------------
+const downloadQRImage = async () => {
+    const element = document.getElementById('qr-capture-area');
+    if (element) {
+        try {
+            const canvas = await html2canvas(element, { 
+                scale: 3, 
+                backgroundColor: '#ffffff', 
+                useCORS: true 
+            });
+            const link = document.createElement('a');
+            link.download = `KHQR_${currentOrderTotal.value}$_${Date.now()}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+            notify("ជោគជ័យ", "បាន Save រូបថត QR រួចរាល់");
+        } catch(e) { 
+            notify("Error", "មិនអាច Save រូបភាពបានទេ", "error"); 
+        }
+    } else {
+        notify("Error", "រកមិនឃើញរូបភាព QR ទេ", "error");
+    }
+};
+
+const autoSavePendingFromQR = async () => {
+    showQR.value = false;
+    loading.value = true;
+    try {
+        if (activePendingOrderId.value) {
+             notify("ព័ត៌មាន", "ផុតម៉ោង QR។ ទិន្នន័យនៅតែរក្សាទុកក្នុងរបាយការណ៍ដដែល។", "warning");
+             activePendingOrderId.value = null;
+             return;
+        }
+
+        const totalIncentive = cart.value.reduce((acc, item) => acc + ((item.incentiveAmount || 0) * item.qty), 0);
+
+        const orderData = {
+            items: [...cart.value],
+            totalAmount: cartTotal.value,
+            customerName: form.name,
+            customerPhone: form.phone,
+            location: form.city === 'ភ្នំពេញ' ? 'ភ្នំពេញ' : form.province,
+            transportCompany: form.city !== 'ភ្នំពេញ' ? form.transportCompany : '',
+            branch: form.city !== 'ភ្នំពេញ' ? form.branch : '',
+            mapsLink: form.mapsLink || '',
+            sellerName: loggedInUserFullName.value, sellerRole: userRole.value,
+            uid: loggedInUserId.value, createdBy: adminId.value,        
+            paymentStatus: 'PENDING', paymentMethod: 'TIMEOUT_QR',
+            sellerIncentive: totalIncentive,
+            createdAt: new Date().toISOString()
+        };
+
+        await addDoc(collection(db, "sales_reports"), orderData);
+        for (const item of cart.value) {
+            const stockRef = doc(db, "stocks", item.id);
+            await updateDoc(stockRef, { quantity: increment(-item.qty) });
+        }
+        
+        fetchProducts(); fetchReports();
+        notify("ព័ត៌មាន", "ផុតកំណត់។ វិក្កយបត្រត្រូវបានរក្សាទុកជា 'រង់ចាំទូទាត់' ដោយស្វ័យប្រវត្តិ។", "warning");
+        cart.value = [];
+        currentHash.value = '';
+    } catch(e) { 
+        notify("Error", "មានបញ្ហាក្នុងការរក្សាទុក", "error"); 
+    } finally { 
+        loading.value = false; 
+    }
+};
+
 const processPendingOrder = async () => {
   if(!form.name || !form.phone) return notify("Error", "សូមបញ្ចូលឈ្មោះ និងលេខទូរស័ព្ទ", "error");
   loading.value = true;
   try {
+      const totalIncentive = cart.value.reduce((acc, item) => acc + ((item.incentiveAmount || 0) * item.qty), 0);
+
       const orderData = {
           items: [...cart.value], totalAmount: cartTotal.value,
           customerName: form.name, customerPhone: form.phone,
@@ -612,6 +949,7 @@ const processPendingOrder = async () => {
           sellerName: loggedInUserFullName.value, sellerRole: userRole.value,
           uid: loggedInUserId.value, createdBy: adminId.value,        
           paymentStatus: 'PENDING', paymentMethod: 'COD',
+          sellerIncentive: totalIncentive,
           createdAt: new Date().toISOString()
       };
 
@@ -635,6 +973,7 @@ const processOrder = async () => {
   if(!form.name || !form.phone || !form.province) return notify("Error", "សូមបញ្ចូលព័ត៌មានឱ្យបានគ្រប់គ្រាន់", "error");
   loading.value = true;
   currentOrderTotal.value = cartTotal.value;
+  activePendingOrderId.value = null; 
   try {
       const payload = {
           customer: { name: form.name, phone: form.phone, address: `${form.province} - ${form.transportCompany} (${form.branch})` }, 
@@ -654,7 +993,7 @@ const processOrder = async () => {
           currentMerchantId.value = data.merchantId;
           currentMerchantName.value = data.merchantName;
           
-          startCountdown(data.expireAt);
+          startCountdown(); 
           setTimeout(() => {
               const qr = qrcode(0, "M"); qr.addData(data.qrString); qr.make();
               document.getElementById("qrcode").innerHTML = qr.createImgTag(6, 10);
@@ -666,14 +1005,33 @@ const processOrder = async () => {
 };
 
 const handleSuccess = async () => {
-  if (!currentHash.value) return; // Fix Double Save
+  if (!currentHash.value) return; 
   currentHash.value = ''; 
 
   clearInterval(pollTimer); clearInterval(timerInterval);
   showQR.value = false;
 
-  if (cart.value.length > 0) {
+  if (activePendingOrderId.value) {
       try {
+          const reportRef = doc(db, "sales_reports", activePendingOrderId.value);
+          await updateDoc(reportRef, { paymentStatus: 'PAID', paymentMethod: 'KHQR' });
+          
+          const updatedReport = reports.value.find(r => r.id === activePendingOrderId.value);
+          if(updatedReport) {
+              updatedReport.paymentStatus = 'PAID';
+              currentInvoice.value = updatedReport;
+              showInvoice.value = true;
+          }
+          
+          fetchReports();
+          notify("ជោគជ័យ", "វិក្កយបត្រត្រូវបានទូទាត់រួចរាល់!");
+          activePendingOrderId.value = null;
+      } catch (e) { notify("Error", "មានបញ្ហាក្នុងការ Update", "error"); }
+  } 
+  else if (cart.value.length > 0) {
+      try {
+          const totalIncentive = cart.value.reduce((acc, item) => acc + ((item.incentiveAmount || 0) * item.qty), 0);
+
           const orderData = {
               items: [...cart.value], totalAmount: cartTotal.value,
               customerName: form.name, customerPhone: form.phone,
@@ -683,6 +1041,7 @@ const handleSuccess = async () => {
               sellerName: loggedInUserFullName.value, sellerRole: userRole.value,
               uid: loggedInUserId.value, createdBy: adminId.value,        
               paymentStatus: 'PAID', paymentMethod: 'KHQR',
+              sellerIncentive: totalIncentive,
               createdAt: new Date().toISOString()
           };
 
@@ -698,21 +1057,11 @@ const handleSuccess = async () => {
           notify("ជោគជ័យ", "ការទូទាត់ប្រាក់ទទួលបានជោគជ័យ!");
       } catch (error) { notify("Warning", "លុយទទួលបានហើយ តែមានបញ្ហាក្នុងការកាត់ស្តុក", "error"); }
       cart.value = []; 
-  } 
-  else if (pendingOrderToPay.value) {
-      try {
-          const reportRef = doc(db, "sales_reports", pendingOrderToPay.value.id);
-          await updateDoc(reportRef, { paymentStatus: 'PAID', paymentMethod: 'KHQR' });
-          fetchReports();
-          notify("ជោគជ័យ", "វិក្កយបត្រត្រូវបានទូទាត់រួចរាល់!");
-          pendingOrderToPay.value = null;
-      } catch (e) { notify("Error", "មានបញ្ហាក្នុងការ Update", "error"); }
   }
 };
 
 const cancelPayment = () => { showQR.value = false; clearInterval(pollTimer); clearInterval(timerInterval); currentHash.value = ''; };
 
-// ----------------- Reports & Actions -----------------
 const fetchReports = async () => {
   if (!db) return;
   isLoadingReports.value = true;
@@ -737,6 +1086,7 @@ const filteredReports = computed(() => {
       return true;
   });
 });
+
 const totalRevenue = computed(() => filteredReports.value.reduce((sum, r) => r.paymentStatus === 'PAID' ? sum + (Number(r.totalAmount) || 0) : sum, 0));
 const pendingOrdersCount = computed(() => filteredReports.value.filter(r => r.paymentStatus === 'PENDING').length);
 
@@ -758,7 +1108,47 @@ const openPayPendingModal = (report) => {
   pendingOrderToPay.value = report;
   pendingCashAmount.value = report.totalAmount;
   pendingCashNote.value = '';
+  
+  // ⭐️ ត្រួតពិនិត្យ៖ បើមិនមែនភ្នំពេញទេ បង្ខំឱ្យ Method ជា 'qr' ដោយស្វ័យប្រវត្តិ
+  if (report.location && !report.location.includes('ភ្នំពេញ')) {
+      pendingPayMethod.value = 'qr';
+  } else {
+      pendingPayMethod.value = 'qr'; // ទុក default qr ដដែលសម្រាប់ភ្នំពេញ
+  }
+
   showPendingPayModal.value = true;
+};
+
+const openEditModal = (report) => {
+    editForm.id = report.id;
+    editForm.name = report.customerName || '';
+    editForm.phone = report.customerPhone || '';
+    editForm.location = report.location || '';
+    editForm.transportCompany = report.transportCompany || '';
+    editForm.branch = report.branch || '';
+    showEditModal.value = true;
+};
+
+const saveEditOrder = async () => {
+    if(!editForm.name || !editForm.phone || !editForm.location) return notify("Error", "សូមបញ្ចូលព័ត៌មានអោយគ្រប់", "error");
+    loading.value = true;
+    try {
+        const reportRef = doc(db, "sales_reports", editForm.id);
+        await updateDoc(reportRef, {
+            customerName: editForm.name,
+            customerPhone: editForm.phone,
+            location: editForm.location,
+            transportCompany: editForm.transportCompany,
+            branch: editForm.branch
+        });
+        showEditModal.value = false;
+        fetchReports();
+        notify("ជោគជ័យ", "ព័ត៌មានត្រូវបានកែប្រែរួចរាល់!");
+    } catch(e) {
+        notify("Error", "បរាជ័យក្នុងការកែប្រែ", "error");
+    } finally {
+        loading.value = false;
+    }
 };
 
 const confirmPendingPayment = async () => {
@@ -770,15 +1160,25 @@ const confirmPendingPayment = async () => {
               paymentStatus: 'PAID', paymentMethod: 'CASH',
               cashNote: pendingCashNote.value, receivedAmount: pendingCashAmount.value
           });
+          
+          const updatedReport = reports.value.find(r => r.id === pendingOrderToPay.value.id);
+          if(updatedReport) {
+              updatedReport.paymentStatus = 'PAID';
+              currentInvoice.value = updatedReport;
+              showInvoice.value = true;
+          }
+
           showPendingPayModal.value = false;
           pendingOrderToPay.value = null;
           fetchReports();
           notify("ជោគជ័យ", "ទទួលបានប្រាក់សុទ្ធជោគជ័យ!");
       } catch(e) { notify("Error", "មានបញ្ហាក្នុងការ Update", "error"); }
       finally { loading.value = false; }
-  } else if (pendingPayMethod.value === 'qr') {
+  } 
+  else if (pendingPayMethod.value === 'qr') {
       loading.value = true;
       currentOrderTotal.value = pendingOrderToPay.value.totalAmount;
+      activePendingOrderId.value = pendingOrderToPay.value.id; 
       try {
           const payload = {
               customer: { name: pendingOrderToPay.value.customerName, phone: pendingOrderToPay.value.customerPhone }, 
@@ -797,7 +1197,8 @@ const confirmPendingPayment = async () => {
               currentHash.value = data.md5;
               currentMerchantId.value = data.merchantId;
               currentMerchantName.value = data.merchantName;
-              startCountdown(data.expireAt);
+              
+              startCountdown();
               setTimeout(() => {
                   const qr = qrcode(0, "M"); qr.addData(data.qrString); qr.make();
                   document.getElementById("qrcode").innerHTML = qr.createImgTag(6, 10);
@@ -809,13 +1210,18 @@ const confirmPendingPayment = async () => {
   }
 };
 
+const viewInvoice = (report) => {
+    currentInvoice.value = report;
+    showInvoice.value = true;
+};
+
 const closeInvoice = () => { showInvoice.value = false; currentInvoice.value = null; };
 const printInvoice = () => { window.print(); };
 const downloadInvoiceImage = async () => {
   const element = document.getElementById('invoice-capture');
   if(element) {
       try {
-          const canvas = await html2canvas(element, { scale: 2, useCORS: true });
+          const canvas = await html2canvas(element, { scale: 3, backgroundColor: '#ffffff', useCORS: true });
           const link = document.createElement('a');
           link.download = `Invoice-${currentInvoice.value.customerName}-${Date.now()}.png`;
           link.href = canvas.toDataURL('image/png');
@@ -827,12 +1233,20 @@ const downloadInvoiceImage = async () => {
 const formatTime = (s) => `${Math.floor(s/60).toString().padStart(2,'0')}:${(s%60).toString().padStart(2,'0')}`;
 const formatDate = (isoString) => new Date(isoString).toLocaleDateString('km-KH', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 
-const startCountdown = (exp) => {
+const startCountdown = () => {
+  qrTimeLeft.value = 330; 
+  let totalSeconds = 330;
+
   clearInterval(timerInterval);
   timerInterval = setInterval(() => {
-      const diff = Math.max(0, Math.floor((exp - Date.now()) / 1000));
-      qrTimeLeft.value = diff;
-      if (diff <= 0) { cancelPayment(); notify("ផុតកំណត់", "QR Code បានផុតកំណត់", "error"); }
+      totalSeconds--;
+      qrTimeLeft.value = totalSeconds;
+      
+      if (totalSeconds <= 0) { 
+          clearInterval(timerInterval);
+          clearInterval(pollTimer);
+          autoSavePendingFromQR(); 
+      }
   }, 1000);
 };
 
@@ -848,3 +1262,11 @@ const startPolling = (md5) => {
   }, 3000);
 };
 </script>
+
+<style scoped>
+/* ធ្វើឱ្យ Scrollbar ស្អាតសម្រាប់ Dropdown ខាងក្នុង Modal នេះ */
+.custom-scrollbar::-webkit-scrollbar { width: 5px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+</style>
