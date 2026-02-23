@@ -476,7 +476,7 @@
               <div class="flex items-center justify-center w-16 h-16 bg-blue-50 text-blue-600 rounded-full mx-auto mb-3 shadow-inner mt-2"><i class="ph-fill ph-qr-code text-3xl"></i></div>
               <h3 class="text-2xl font-black text-slate-900 font-['Noto_Serif_Khmer']">ស្កេនដើម្បីទូទាត់ប្រាក់</h3>
               
-              <div id="qr-capture-area" class="bg-white p-5 rounded-[1.5rem] border-2 border-slate-100 shadow-sm inline-block mb-4 mt-4 w-full">
+              <div id="qr-capture-area" class="bg-white p-5 rounded-[1.5rem] border-2 border-slate-100 shadow-sm inline-block mb-4 mt-4 w-full" style="background-color: #ffffff; color: #0f172a;">
                   <div class="text-sm mb-3">
                       <p class="font-bold text-slate-800 uppercase">{{ currentMerchantName }}</p>
                       <p class="text-[10px] text-slate-400 font-bold tracking-widest mt-0.5">ID: {{ currentMerchantId }}</p>
@@ -493,9 +493,15 @@
                   ផុតកំណត់ក្នុង: {{ formatTime(qrTimeLeft) }}
               </div>
 
-              <button @click="downloadQRImage" class="w-full py-3.5 rounded-xl text-blue-600 font-bold bg-blue-50 hover:bg-blue-600 hover:text-white transition-colors flex items-center justify-center gap-2 font-['Noto_Serif_Khmer'] shadow-sm">
-                  <i class="ph-bold ph-download-simple text-xl"></i> Save រូបថត QR
-              </button>
+              <div class="flex gap-3 mt-6 no-print">
+                  <button @click="shareQRImage" class="md:hidden flex-1 py-3.5 rounded-xl text-blue-500 font-bold bg-blue-50 hover:bg-blue-100 transition-colors flex items-center justify-center gap-2 shadow-sm">
+                      <i class="ph-fill ph-telegram-logo text-2xl"></i> Share
+                  </button>
+                  <button @click="downloadQRImage" class="flex-1 py-3.5 rounded-xl text-blue-600 font-bold bg-blue-50 hover:bg-blue-600 hover:text-white transition-colors flex items-center justify-center gap-2 font-['Noto_Serif_Khmer'] shadow-sm">
+                      <i class="ph-bold ph-download-simple text-xl"></i>
+                      <span class="hidden md:inline">Save រូបថត QR</span>
+                  </button>
+              </div>
           </div>
       </div>
 
@@ -622,7 +628,9 @@ import { useRouter } from 'vue-router';
 import { db, collection, getDocs, query, doc, updateDoc, increment, addDoc, orderBy } from '../firebase';
 import { io } from 'socket.io-client';
 import qrcode from 'qrcode-generator';
-import html2canvas from 'html2canvas';
+
+// ⭐️ ប្រើប្រាស់ html-to-image ជំនួស html2canvas ដើម្បើដោះស្រាយបញ្ហា Error OKLCH
+import * as htmlToImage from 'html-to-image';
 
 // បញ្ចូល Component Account
 import MyAccount from '../components/MyAccount.vue';
@@ -869,25 +877,70 @@ const startCheckout = () => {
   form.name = ''; form.phone = ''; form.city = 'ភ្នំពេញ'; form.province = ''; form.mapsLink = ''; form.branch = '';
 };
 
+// ------------------- មុខងារ Save & Share QR (FIX CORS Error) -------------------
 const downloadQRImage = async () => {
     const element = document.getElementById('qr-capture-area');
-    if (element) {
-        try {
-            const canvas = await html2canvas(element, { 
-                scale: 3, 
-                backgroundColor: '#ffffff', 
-                useCORS: true 
+    if (!element) return notify("Error", "រកមិនឃើញរូបភាព QR ទេ", "error");
+
+    try {
+        await new Promise(resolve => setTimeout(resolve, 300));
+        
+        const dataUrl = await htmlToImage.toPng(element, { 
+            quality: 1,
+            backgroundColor: '#ffffff',
+            pixelRatio: 3,
+            fontEmbedCSS: '' // ⭐️ បន្ថែមបន្ទាត់នេះដើម្បីបញ្ចៀស Error CORS ពេលអាន CSS
+        });
+
+        const link = document.createElement('a');
+        link.download = `KHQR_${currentOrderTotal.value}$_${Date.now()}.png`;
+        link.href = dataUrl;
+        
+        document.body.appendChild(link); 
+        link.click();
+        document.body.removeChild(link);
+
+        notify("ជោគជ័យ", "បាន Save រូបថត QR រួចរាល់");
+    } catch(e) { 
+        console.error(e);
+        notify("Error", "មិនអាច Save រូបភាពបានទេ", "error"); 
+    }
+};
+
+const shareQRImage = async () => {
+    const element = document.getElementById('qr-capture-area');
+    if (!element) return notify("Error", "រកមិនឃើញរូបភាព QR ទេ", "error");
+
+    if (!navigator.share || !navigator.canShare) {
+        return notify("ព័ត៌មាន", "ទូរស័ព្ទរបស់អ្នកមិនគាំទ្រមុខងារ Share ទេ សូមចុច Save ជំនួសវិញ", "warning");
+    }
+
+    try {
+        await new Promise(resolve => setTimeout(resolve, 300));
+
+        const blob = await htmlToImage.toBlob(element, { 
+            quality: 1,
+            backgroundColor: '#ffffff',
+            pixelRatio: 3,
+            fontEmbedCSS: '' // ⭐️ បន្ថែមបន្ទាត់នេះដើម្បីបញ្ចៀស Error CORS ពេលអាន CSS
+        });
+
+        const file = new File([blob], `KHQR_${currentOrderTotal.value}$.png`, { type: 'image/png' });
+
+        if (navigator.canShare({ files: [file] })) {
+            await navigator.share({
+                files: [file],
+                title: 'KHQR Payment',
+                text: `សូមទូទាត់ប្រាក់ចំនួន $${currentOrderTotal.value.toLocaleString('en-US', {minimumFractionDigits: 2})}`
             });
-            const link = document.createElement('a');
-            link.download = `KHQR_${currentOrderTotal.value}$_${Date.now()}.png`;
-            link.href = canvas.toDataURL('image/png');
-            link.click();
-            notify("ជោគជ័យ", "បាន Save រូបថត QR រួចរាល់");
-        } catch(e) { 
-            notify("Error", "មិនអាច Save រូបភាពបានទេ", "error"); 
+        } else {
+            notify("Error", "មិនអាច Share រូបភាពនេះបានទេ", "warning");
         }
-    } else {
-        notify("Error", "រកមិនឃើញរូបភាព QR ទេ", "error");
+    } catch (e) {
+        console.error(e);
+        if (e.name !== 'AbortError') {
+            notify("Error", "មានបញ្ហាក្នុងការ Share រូបភាព", "error");
+        }
     }
 };
 
@@ -1109,11 +1162,10 @@ const openPayPendingModal = (report) => {
   pendingCashAmount.value = report.totalAmount;
   pendingCashNote.value = '';
   
-  // ⭐️ ត្រួតពិនិត្យ៖ បើមិនមែនភ្នំពេញទេ បង្ខំឱ្យ Method ជា 'qr' ដោយស្វ័យប្រវត្តិ
   if (report.location && !report.location.includes('ភ្នំពេញ')) {
       pendingPayMethod.value = 'qr';
   } else {
-      pendingPayMethod.value = 'qr'; // ទុក default qr ដដែលសម្រាប់ភ្នំពេញ
+      pendingPayMethod.value = 'qr'; 
   }
 
   showPendingPayModal.value = true;
@@ -1217,16 +1269,31 @@ const viewInvoice = (report) => {
 
 const closeInvoice = () => { showInvoice.value = false; currentInvoice.value = null; };
 const printInvoice = () => { window.print(); };
+
+// ------------------- មុខងារ Save រូបភាពវិក្កយបត្រ (Invoice) -------------------
 const downloadInvoiceImage = async () => {
   const element = document.getElementById('invoice-capture');
-  if(element) {
-      try {
-          const canvas = await html2canvas(element, { scale: 3, backgroundColor: '#ffffff', useCORS: true });
-          const link = document.createElement('a');
-          link.download = `Invoice-${currentInvoice.value.customerName}-${Date.now()}.png`;
-          link.href = canvas.toDataURL('image/png');
-          link.click();
-      } catch(e) { notify("Error", "មិនអាច Download រូបភាពបានទេ", "error"); }
+  if(!element) return;
+  
+  try {
+      const dataUrl = await htmlToImage.toPng(element, { 
+          quality: 1,
+          backgroundColor: '#ffffff',
+          pixelRatio: 3,
+          fontEmbedCSS: '' // ⭐️ បន្ថែមបន្ទាត់នេះដើម្បីបញ្ចៀស Error CORS ពេលអាន CSS
+      });
+      
+      const link = document.createElement('a');
+      link.download = `Invoice-${currentInvoice.value.customerName}-${Date.now()}.png`;
+      link.href = dataUrl;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      notify("ជោគជ័យ", "បាន Save វិក្កយបត្ររួចរាល់");
+  } catch(e) { 
+      console.error(e);
+      notify("Error", "មិនអាច Download រូបភាពបានទេ", "error"); 
   }
 };
 
