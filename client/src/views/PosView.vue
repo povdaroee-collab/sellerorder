@@ -348,7 +348,7 @@
                       </div>
                   </div>
 
-                  <div v-if="form.city === 'ភ្នំពេញ'" class="space-y-5 animate-fade pt-2">
+                  <div v-if="form.city === 'ភ្នំពេញ'" class="space-y-3 animate-fade pt-1">
                       <div class="space-y-1.5">
                           <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">ទីតាំង (Google Maps Link)</label>
                           <div class="relative">
@@ -362,19 +362,13 @@
                                   placeholder="http://googleusercontent.com/maps...">
                           </div>
                       </div>
-                      
-                      <div class="bg-orange-50 border border-orange-100 p-3.5 rounded-xl flex gap-3 items-start shadow-sm">
+                      <div class="bg-orange-50 border border-orange-100 p-3 rounded-xl flex gap-3 items-start shadow-sm">
                           <i class="ph-fill ph-warning-circle text-orange-500 text-xl mt-0.5"></i>
-                          <p class="text-[12px] text-orange-800 font-medium leading-relaxed">កំណត់សម្គាល់: ការកម្ម៉ង់នេះមិនទាន់ទូទាត់ប្រាក់ទេ។ អតិថិជនត្រូវទូទាត់ប្រាក់ពេលអ្នកដឹកជញ្ជូនយកឥវ៉ាន់ទៅដល់ទីតាំង (COD)។</p>
+                          <p class="text-[11px] text-orange-800 font-medium leading-relaxed">កំណត់សម្គាល់: ការកម្ម៉ង់នេះមិនទាន់ទូទាត់ប្រាក់ទេ។ អតិថិជនត្រូវទូទាត់ប្រាក់ពេលអ្នកដឹកជញ្ជូនយកឥវ៉ាន់ទៅដល់ទីតាំង (COD)។</p>
                       </div>
-
-                      <button @click="processPendingOrder" :disabled="loading" class="w-full py-4 font-bold bg-orange-500 text-white rounded-xl hover:bg-orange-600 hover:shadow-orange-500/30 transition-all shadow-lg flex justify-center items-center gap-2">
-                          <span v-if="loading" class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-                          <span v-else>រក្សាទុករង់ចាំបង់ប្រាក់ (Save Pending)</span>
-                      </button>
                   </div>
 
-                  <div v-if="form.city !== 'ភ្នំពេញ'" class="space-y-4 animate-fade pt-2">
+                  <div v-if="form.city !== 'ភ្នំពេញ'" class="space-y-3 animate-fade pt-1">
                       <div class="grid grid-cols-2 gap-3">
                           <div class="space-y-1.5">
                               <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">ខេត្ត</label>
@@ -409,12 +403,34 @@
                               class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all font-medium" 
                               placeholder="ឧ. សាខាអូឡាំពិក...">
                       </div>
-                      
-                      <button @click="processOrder" :disabled="loading" class="w-full py-4 font-bold bg-slate-900 text-white rounded-xl hover:bg-blue-600 hover:shadow-blue-600/30 transition-all shadow-lg flex justify-center items-center gap-2 mt-2">
-                          <span v-if="loading" class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-                          <span v-else>បន្តទៅទូទាត់តាម QR: ${{ cartTotal.toLocaleString('en-US', {minimumFractionDigits: 2}) }}</span>
-                      </button>
                   </div>
+
+                  <div class="bg-slate-50 p-4 rounded-xl space-y-2.5 mt-4 border border-slate-200">
+                      <div class="flex justify-between text-xs font-bold text-slate-500">
+                          <span>សរុបទំនិញ (Subtotal):</span>
+                          <span class="text-slate-700">${{ cartTotal.toLocaleString('en-US', {minimumFractionDigits: 2}) }}</span>
+                      </div>
+                      <div class="flex justify-between text-xs font-bold text-slate-500 items-center">
+                          <span>ថ្លៃដឹកជញ្ជូន (Delivery):</span>
+                          <span v-if="deliveryFeeDetails.isFree" class="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded border border-green-200 uppercase tracking-wider">ឥតគិតថ្លៃ (Free)</span>
+                          <span v-else class="text-slate-700">${{ deliveryFeeDetails.fee.toLocaleString('en-US', {minimumFractionDigits: 2}) }}</span>
+                      </div>
+                      <div class="flex justify-between text-base font-black text-slate-900 border-t border-slate-200 pt-2 mt-1">
+                          <span>សរុបរួម (Grand Total):</span>
+                          <span class="text-blue-600">${{ grandTotal.toLocaleString('en-US', {minimumFractionDigits: 2}) }}</span>
+                      </div>
+                  </div>
+
+                  <button v-if="form.city === 'ភ្នំពេញ'" @click="processPendingOrder" :disabled="loading" class="w-full py-4 font-bold bg-orange-500 text-white rounded-xl hover:bg-orange-600 hover:shadow-orange-500/30 transition-all shadow-lg flex justify-center items-center gap-2 mt-2">
+                      <span v-if="loading" class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                      <span v-else>រក្សាទុករង់ចាំបង់ប្រាក់ (Save Pending)</span>
+                  </button>
+
+                  <button v-if="form.city !== 'ភ្នំពេញ'" @click="processOrder" :disabled="loading" class="w-full py-4 font-bold bg-slate-900 text-white rounded-xl hover:bg-blue-600 hover:shadow-blue-600/30 transition-all shadow-lg flex justify-center items-center gap-2 mt-2">
+                      <span v-if="loading" class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                      <span v-else>បន្តទៅទូទាត់តាម QR: ${{ grandTotal.toLocaleString('en-US', {minimumFractionDigits: 2}) }}</span>
+                  </button>
+
               </div>
           </div>
       </div>
@@ -516,7 +532,7 @@
                   </div>
               </div>
 
-              <div id="invoice-capture" class="bg-white rounded-[2rem] shadow-2xl overflow-y-auto flex-1 p-6 md:p-8 font-['Noto_Serif_Khmer'] text-slate-800 relative">
+              <div id="invoice-capture" class="bg-white rounded-[2rem] shadow-2xl overflow-y-auto flex-1 p-6 md:p-8 font-['Noto_Serif_Khmer'] text-slate-800 relative" style="background-color: #ffffff;">
                   <div v-if="currentInvoice.paymentStatus === 'PENDING'" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-5 pointer-events-none rotate-[-30deg]">
                       <span class="text-6xl font-black text-orange-600 border-8 border-orange-600 px-6 py-2 rounded-3xl uppercase tracking-widest">រង់ចាំទូទាត់</span>
                   </div>
@@ -563,6 +579,18 @@
                       </tbody>
                   </table>
 
+                  <div class="border-t-2 border-slate-200 pt-4 pb-2">
+                      <div class="flex justify-between items-center mb-2 text-sm text-slate-600 font-bold">
+                          <span>សរុបទំនិញ (Subtotal):</span>
+                          <span>${{ (currentInvoice.totalAmount - (currentInvoice.deliveryFee || 0)).toLocaleString('en-US', {minimumFractionDigits: 2}) }}</span>
+                      </div>
+                      <div class="flex justify-between items-center text-sm text-slate-600 font-bold mb-4">
+                          <span>ថ្លៃដឹកជញ្ជូន (Delivery):</span>
+                          <span v-if="currentInvoice.deliveryFee === 0" class="text-green-500 uppercase">Free</span>
+                          <span v-else>${{ (currentInvoice.deliveryFee || 0).toLocaleString('en-US', {minimumFractionDigits: 2}) }}</span>
+                      </div>
+                  </div>
+
                   <div class="border-t-2 border-slate-800 pt-4 flex justify-between items-center mb-8">
                       <span class="font-bold text-lg">សរុប (TOTAL):</span>
                       <span class="font-black text-2xl text-blue-600">${{ currentInvoice.totalAmount.toLocaleString('en-US', {minimumFractionDigits: 2}) }}</span>
@@ -581,13 +609,12 @@
               <h3 class="text-lg font-black text-slate-900 mb-4 border-b pb-3">ទូទាត់ប្រាក់ (អតិថិជន: {{ pendingOrderToPay.customerName }})</h3>
               
               <div class="bg-slate-50 p-4 rounded-xl text-center mb-4">
-                  <p class="text-sm text-slate-500 mb-1">ទឹកប្រាក់ត្រូវបង់</p>
+                  <p class="text-sm text-slate-500 mb-1">ទឹកប្រាក់ត្រូវបង់ (រួមទាំងថ្លៃដឹក)</p>
                   <p class="text-3xl font-black text-slate-900">${{ pendingOrderToPay.totalAmount.toLocaleString('en-US', {minimumFractionDigits: 2}) }}</p>
               </div>
 
               <div class="flex gap-2 mb-4">
                   <button @click="pendingPayMethod = 'qr'" :class="pendingPayMethod === 'qr' ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600'" class="flex-1 py-3 rounded-xl font-bold text-sm transition flex flex-col items-center justify-center gap-1"><i class="ph-bold ph-qr-code text-xl"></i> បង្ហាញ QR ម្ដងទៀត</button>
-                  
                   <button v-if="pendingOrderToPay.location && pendingOrderToPay.location.includes('ភ្នំពេញ')" @click="pendingPayMethod = 'cash'" :class="pendingPayMethod === 'cash' ? 'bg-green-600 text-white' : 'bg-slate-100 text-slate-600'" class="flex-1 py-3 rounded-xl font-bold text-sm transition flex flex-col items-center justify-center gap-1"><i class="ph-bold ph-money text-xl"></i> លុយសុទ្ធ</button>
               </div>
 
@@ -625,14 +652,12 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { db, collection, getDocs, query, doc, updateDoc, increment, addDoc, orderBy } from '../firebase';
+// ⭐️ ប្រើប្រាស់ onSnapshot សម្រាប់ Realtime Delivery Updates
+import { db, collection, getDocs, query, doc, updateDoc, increment, addDoc, orderBy, getDoc, onSnapshot } from '../firebase';
 import { io } from 'socket.io-client';
 import qrcode from 'qrcode-generator';
-
-// ⭐️ ប្រើប្រាស់ html-to-image ជំនួស html2canvas ដើម្បើដោះស្រាយបញ្ហា Error OKLCH
 import * as htmlToImage from 'html-to-image';
 
-// បញ្ចូល Component Account
 import MyAccount from '../components/MyAccount.vue';
 
 const router = useRouter();
@@ -654,6 +679,9 @@ const isLoadingProducts = ref(false);
 const reports = ref([]);
 const isLoadingReports = ref(false);
 const filterType = ref('today');
+
+// ⭐️ អថេរសម្រាប់ផ្ទុកទិន្នន័យ Delivery Fees
+const deliverySettings = ref(null);
 
 const cart = ref([]);
 const showCart = ref(false);
@@ -718,9 +746,7 @@ const clearCustomerForm = () => {
     if(nameInput.value) nameInput.value.focus();
 };
 
-const hideCustomerDropdown = () => {
-    setTimeout(() => { showCustomerDropdown.value = false; }, 200);
-};
+const hideCustomerDropdown = () => { setTimeout(() => { showCustomerDropdown.value = false; }, 200); };
 
 const selectCustomer = (customer) => {
     form.name = customer.name;
@@ -740,17 +766,8 @@ const selectCustomer = (customer) => {
     setTimeout(() => { if(phoneInput.value) phoneInput.value.focus(); }, 50);
 };
 
-const highlightNextCustomer = () => {
-    if (showCustomerDropdown.value && highlightedCustomerIndex.value < filteredCustomers.value.length - 1) {
-        highlightedCustomerIndex.value++;
-    }
-};
-
-const highlightPrevCustomer = () => {
-    if (showCustomerDropdown.value && highlightedCustomerIndex.value > 0) {
-        highlightedCustomerIndex.value--;
-    }
-};
+const highlightNextCustomer = () => { if (showCustomerDropdown.value && highlightedCustomerIndex.value < filteredCustomers.value.length - 1) highlightedCustomerIndex.value++; };
+const highlightPrevCustomer = () => { if (showCustomerDropdown.value && highlightedCustomerIndex.value > 0) highlightedCustomerIndex.value--; };
 
 const handleNameEnter = () => {
     if (showCustomerDropdown.value && highlightedCustomerIndex.value >= 0 && filteredCustomers.value.length > 0) {
@@ -782,7 +799,6 @@ const pendingCashNote = ref('');
 const showEditModal = ref(false);
 const editForm = reactive({ id: '', name: '', phone: '', location: '', transportCompany: '', branch: '' });
 
-// ម៉ោងកំណត់ 330 វិនាទី (5នាទី 30វិនាទី)
 const qrTimeLeft = ref(330);
 const currentMerchantId = ref('');
 const currentMerchantName = ref('');
@@ -790,7 +806,6 @@ const currentMerchantName = ref('');
 let timerInterval = null, pollTimer = null;
 const currentHash = ref('');
 const currentOrderTotal = ref(0);
-
 const activePendingOrderId = ref(null); 
 
 const notify = (title, message, type = 'success') => {
@@ -811,6 +826,7 @@ onMounted(() => {
       adminId.value = session.createdBy || '';
       fetchProducts();
       fetchReports();
+      fetchDeliverySettings(); // ⭐️ ចាប់ផ្តើមស្តាប់ទិន្នន័យដឹកជញ្ជូន
   } else {
       router.push('/login'); 
   }
@@ -824,7 +840,23 @@ const executeLogout = () => {
   router.push('/login'); 
 };
 
-// ទាញយកទិន្នន័យផលិតផល និង Incentive
+// ------------------- ⭐️ ទាញយកទិន្នន័យ Settings តាមបែប Realtime -------------------
+const fetchDeliverySettings = () => {
+    try {
+        const docRef = doc(db, "settings", "delivery_fees");
+        // ប្រើ onSnapshot វានឹង Update ដោយស្វ័យប្រវត្តិពេលមានការកែប្រែក្នុង DB
+        onSnapshot(docRef, (docSnap) => {
+            if (docSnap.exists()) {
+                deliverySettings.value = docSnap.data();
+                // 💡 បន្ថែមការ Print ដើម្បីឱ្យអ្នកឃើញថាវាពិតជា Update មែនពេលកែក្នុង DB
+                console.log("⚡️ Realtime Data Updated:", deliverySettings.value);
+            }
+        });
+    } catch (e) {
+        console.error("Error fetching delivery settings:", e);
+    }
+}
+
 const fetchProducts = async () => {
   if (!db) return;
   isLoadingProducts.value = true;
@@ -866,8 +898,52 @@ const addToCart = (product, type = 'retail') => {
 
 const removeFromCart = (index) => cart.value.splice(index, 1);
 const updateQty = (index, change) => { if(cart.value[index].qty + change > 0) cart.value[index].qty += change; };
+
 const cartTotalQty = computed(() => cart.value.reduce((acc, item) => acc + item.qty, 0));
 const cartTotal = computed(() => cart.value.reduce((acc, item) => acc + (item.price * item.qty), 0));
+
+// ------------------- ⭐️ មុខងារគណនាថ្លៃដឹកជញ្ជូនវៃឆ្លាត (Fixed) -------------------
+const deliveryFeeDetails = computed(() => {
+    if (!deliverySettings.value) return { fee: 0, currency: 'USD', isFree: false };
+    
+    const subtotal = cartTotal.value;
+    const isPhnomPenh = form.city === 'ភ្នំពេញ';
+    const settings = isPhnomPenh ? deliverySettings.value.phnomPenh : deliverySettings.value.provincial;
+    
+    if (!settings) return { fee: 0, currency: 'USD', isFree: false };
+
+    let fee = 0;
+    let isFree = false;
+
+    // ឆែកលក្ខខណ្ឌ Has Condition
+    if (settings.hasCondition === true || settings.hasCondition === 'true') {
+        const minAmount = parseFloat(settings.conditionMinAmount) || 0;
+        if (subtotal >= minAmount) {
+            fee = 0;
+            isFree = true;
+        } else {
+            // បើទិញមិនដល់លក្ខខណ្ឌ យកតម្លៃ amount 
+            fee = parseFloat(settings.amount) || 0;
+        }
+    } else {
+        // ⭐️ បើគ្មានលក្ខខណ្ឌ (false) គឺត្រូវយក baseFee
+        // ការពារបញ្ហាលេខ 0 មិនឱ្យលោតទៅចាប់យក amount វិញ
+        if (settings.baseFee !== undefined && settings.baseFee !== null && settings.baseFee !== '') {
+            fee = parseFloat(settings.baseFee);
+        } else {
+            fee = parseFloat(settings.amount) || 0;
+        }
+        
+        // ប្រសិនបើ Admin ដាក់ baseFee ស្មើ 0 មែន ឱ្យវាបង្ហាញពាក្យ "Free" ដែរ
+        if (fee === 0) {
+            isFree = true;
+        }
+    }
+
+    return { fee, currency: settings.currency || 'USD', isFree };
+});
+
+const grandTotal = computed(() => cartTotal.value + deliveryFeeDetails.value.fee);
 
 const startCheckout = () => {
   if (cartTotalQty.value === 0) return;
@@ -877,34 +953,22 @@ const startCheckout = () => {
   form.name = ''; form.phone = ''; form.city = 'ភ្នំពេញ'; form.province = ''; form.mapsLink = ''; form.branch = '';
 };
 
-// ------------------- មុខងារ Save & Share QR (FIX CORS Error) -------------------
+// ------------------- មុខងារ Save & Share QR -------------------
 const downloadQRImage = async () => {
     const element = document.getElementById('qr-capture-area');
     if (!element) return notify("Error", "រកមិនឃើញរូបភាព QR ទេ", "error");
 
     try {
         await new Promise(resolve => setTimeout(resolve, 300));
-        
-        const dataUrl = await htmlToImage.toPng(element, { 
-            quality: 1,
-            backgroundColor: '#ffffff',
-            pixelRatio: 3,
-            fontEmbedCSS: '' // ⭐️ បន្ថែមបន្ទាត់នេះដើម្បីបញ្ចៀស Error CORS ពេលអាន CSS
-        });
-
+        const dataUrl = await htmlToImage.toPng(element, { quality: 1, backgroundColor: '#ffffff', pixelRatio: 3, fontEmbedCSS: '' });
         const link = document.createElement('a');
         link.download = `KHQR_${currentOrderTotal.value}$_${Date.now()}.png`;
         link.href = dataUrl;
-        
         document.body.appendChild(link); 
         link.click();
         document.body.removeChild(link);
-
         notify("ជោគជ័យ", "បាន Save រូបថត QR រួចរាល់");
-    } catch(e) { 
-        console.error(e);
-        notify("Error", "មិនអាច Save រូបភាពបានទេ", "error"); 
-    }
+    } catch(e) { notify("Error", "មិនអាច Save រូបភាពបានទេ", "error"); }
 };
 
 const shareQRImage = async () => {
@@ -912,36 +976,21 @@ const shareQRImage = async () => {
     if (!element) return notify("Error", "រកមិនឃើញរូបភាព QR ទេ", "error");
 
     if (!navigator.share || !navigator.canShare) {
-        return notify("ព័ត៌មាន", "ទូរស័ព្ទរបស់អ្នកមិនគាំទ្រមុខងារ Share ទេ សូមចុច Save ជំនួសវិញ", "warning");
+        return notify("ព័ត៌មាន", "ទូរស័ព្ទរបស់អ្នកមិនគាំទ្រមុខងារ Share ទេ", "warning");
     }
 
     try {
         await new Promise(resolve => setTimeout(resolve, 300));
-
-        const blob = await htmlToImage.toBlob(element, { 
-            quality: 1,
-            backgroundColor: '#ffffff',
-            pixelRatio: 3,
-            fontEmbedCSS: '' // ⭐️ បន្ថែមបន្ទាត់នេះដើម្បីបញ្ចៀស Error CORS ពេលអាន CSS
-        });
-
+        const blob = await htmlToImage.toBlob(element, { quality: 1, backgroundColor: '#ffffff', pixelRatio: 3, fontEmbedCSS: '' });
         const file = new File([blob], `KHQR_${currentOrderTotal.value}$.png`, { type: 'image/png' });
 
         if (navigator.canShare({ files: [file] })) {
             await navigator.share({
-                files: [file],
-                title: 'KHQR Payment',
+                files: [file], title: 'KHQR Payment',
                 text: `សូមទូទាត់ប្រាក់ចំនួន $${currentOrderTotal.value.toLocaleString('en-US', {minimumFractionDigits: 2})}`
             });
-        } else {
-            notify("Error", "មិនអាច Share រូបភាពនេះបានទេ", "warning");
         }
-    } catch (e) {
-        console.error(e);
-        if (e.name !== 'AbortError') {
-            notify("Error", "មានបញ្ហាក្នុងការ Share រូបភាព", "error");
-        }
-    }
+    } catch (e) { if (e.name !== 'AbortError') notify("Error", "មានបញ្ហាក្នុងការ Share រូបភាព", "error"); }
 };
 
 const autoSavePendingFromQR = async () => {
@@ -958,7 +1007,9 @@ const autoSavePendingFromQR = async () => {
 
         const orderData = {
             items: [...cart.value],
-            totalAmount: cartTotal.value,
+            totalAmount: grandTotal.value, 
+            subtotal: cartTotal.value,
+            deliveryFee: deliveryFeeDetails.value.fee,
             customerName: form.name,
             customerPhone: form.phone,
             location: form.city === 'ភ្នំពេញ' ? 'ភ្នំពេញ' : form.province,
@@ -980,13 +1031,9 @@ const autoSavePendingFromQR = async () => {
         
         fetchProducts(); fetchReports();
         notify("ព័ត៌មាន", "ផុតកំណត់។ វិក្កយបត្រត្រូវបានរក្សាទុកជា 'រង់ចាំទូទាត់' ដោយស្វ័យប្រវត្តិ។", "warning");
-        cart.value = [];
-        currentHash.value = '';
-    } catch(e) { 
-        notify("Error", "មានបញ្ហាក្នុងការរក្សាទុក", "error"); 
-    } finally { 
-        loading.value = false; 
-    }
+        cart.value = []; currentHash.value = '';
+    } catch(e) { notify("Error", "មានបញ្ហាក្នុងការរក្សាទុក", "error"); } 
+    finally { loading.value = false; }
 };
 
 const processPendingOrder = async () => {
@@ -996,7 +1043,10 @@ const processPendingOrder = async () => {
       const totalIncentive = cart.value.reduce((acc, item) => acc + ((item.incentiveAmount || 0) * item.qty), 0);
 
       const orderData = {
-          items: [...cart.value], totalAmount: cartTotal.value,
+          items: [...cart.value], 
+          totalAmount: grandTotal.value,
+          subtotal: cartTotal.value,
+          deliveryFee: deliveryFeeDetails.value.fee,
           customerName: form.name, customerPhone: form.phone,
           location: 'ភ្នំពេញ (COD)', mapsLink: form.mapsLink,
           sellerName: loggedInUserFullName.value, sellerRole: userRole.value,
@@ -1025,7 +1075,7 @@ const processPendingOrder = async () => {
 const processOrder = async () => {
   if(!form.name || !form.phone || !form.province) return notify("Error", "សូមបញ្ចូលព័ត៌មានឱ្យបានគ្រប់គ្រាន់", "error");
   loading.value = true;
-  currentOrderTotal.value = cartTotal.value;
+  currentOrderTotal.value = grandTotal.value;
   activePendingOrderId.value = null; 
   try {
       const payload = {
@@ -1036,8 +1086,10 @@ const processOrder = async () => {
               uid: loggedInUserId.value, createdBy: adminId.value
           }
       };
+      
       const res = await fetch(`${API_URL}/api/create-order`, {
-          method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload)
+          method: "POST", headers: { "Content-Type": "application/json" }, 
+          body: JSON.stringify({ ...payload, finalTotal: grandTotal.value }) 
       });
       const data = await res.json();
       if(data.qrString) {
@@ -1075,7 +1127,6 @@ const handleSuccess = async () => {
               currentInvoice.value = updatedReport;
               showInvoice.value = true;
           }
-          
           fetchReports();
           notify("ជោគជ័យ", "វិក្កយបត្រត្រូវបានទូទាត់រួចរាល់!");
           activePendingOrderId.value = null;
@@ -1086,7 +1137,10 @@ const handleSuccess = async () => {
           const totalIncentive = cart.value.reduce((acc, item) => acc + ((item.incentiveAmount || 0) * item.qty), 0);
 
           const orderData = {
-              items: [...cart.value], totalAmount: cartTotal.value,
+              items: [...cart.value], 
+              totalAmount: grandTotal.value,
+              subtotal: cartTotal.value,
+              deliveryFee: deliveryFeeDetails.value.fee,
               customerName: form.name, customerPhone: form.phone,
               location: form.city === 'ភ្នំពេញ' ? 'ភ្នំពេញ' : form.province,
               transportCompany: form.city !== 'ភ្នំពេញ' ? form.transportCompany : '',
@@ -1167,7 +1221,6 @@ const openPayPendingModal = (report) => {
   } else {
       pendingPayMethod.value = 'qr'; 
   }
-
   showPendingPayModal.value = true;
 };
 
@@ -1241,7 +1294,8 @@ const confirmPendingPayment = async () => {
               }
           };
           const res = await fetch(`${API_URL}/api/create-order`, {
-              method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload)
+              method: "POST", headers: { "Content-Type": "application/json" }, 
+              body: JSON.stringify({ ...payload, finalTotal: pendingOrderToPay.value.totalAmount })
           });
           const data = await res.json();
           if(data.qrString) {
@@ -1270,31 +1324,20 @@ const viewInvoice = (report) => {
 const closeInvoice = () => { showInvoice.value = false; currentInvoice.value = null; };
 const printInvoice = () => { window.print(); };
 
-// ------------------- មុខងារ Save រូបភាពវិក្កយបត្រ (Invoice) -------------------
 const downloadInvoiceImage = async () => {
   const element = document.getElementById('invoice-capture');
   if(!element) return;
   
   try {
-      const dataUrl = await htmlToImage.toPng(element, { 
-          quality: 1,
-          backgroundColor: '#ffffff',
-          pixelRatio: 3,
-          fontEmbedCSS: '' // ⭐️ បន្ថែមបន្ទាត់នេះដើម្បីបញ្ចៀស Error CORS ពេលអាន CSS
-      });
-      
+      const dataUrl = await htmlToImage.toPng(element, { quality: 1, backgroundColor: '#ffffff', pixelRatio: 3, fontEmbedCSS: '' });
       const link = document.createElement('a');
       link.download = `Invoice-${currentInvoice.value.customerName}-${Date.now()}.png`;
       link.href = dataUrl;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      
       notify("ជោគជ័យ", "បាន Save វិក្កយបត្ររួចរាល់");
-  } catch(e) { 
-      console.error(e);
-      notify("Error", "មិនអាច Download រូបភាពបានទេ", "error"); 
-  }
+  } catch(e) { notify("Error", "មិនអាច Download រូបភាពបានទេ", "error"); }
 };
 
 const formatTime = (s) => `${Math.floor(s/60).toString().padStart(2,'0')}:${(s%60).toString().padStart(2,'0')}`;
@@ -1308,7 +1351,6 @@ const startCountdown = () => {
   timerInterval = setInterval(() => {
       totalSeconds--;
       qrTimeLeft.value = totalSeconds;
-      
       if (totalSeconds <= 0) { 
           clearInterval(timerInterval);
           clearInterval(pollTimer);
@@ -1331,7 +1373,6 @@ const startPolling = (md5) => {
 </script>
 
 <style scoped>
-/* ធ្វើឱ្យ Scrollbar ស្អាតសម្រាប់ Dropdown ខាងក្នុង Modal នេះ */
 .custom-scrollbar::-webkit-scrollbar { width: 5px; }
 .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
 .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }

@@ -1,5 +1,6 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore, collection, query, where, getDocs, addDoc, updateDoc, increment, doc, orderBy } from "firebase/firestore";
+// ⭐️ ថែមពាក្យ onSnapshot នៅទីនេះ
+import { getFirestore, collection, query, where, getDocs, addDoc, updateDoc, increment, doc, orderBy, getDoc, onSnapshot } from "firebase/firestore";
 
 const firebaseConfig = {
     apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -13,4 +14,5 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-export { db, collection, query, where, getDocs, addDoc, updateDoc, increment, doc, orderBy };
+// ⭐️ ថែមពាក្យ onSnapshot នៅទីនេះ
+export { db, collection, query, where, getDocs, addDoc, updateDoc, increment, doc, orderBy, getDoc, onSnapshot };
